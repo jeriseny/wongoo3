@@ -28,5 +28,6 @@ springdoc:
     tags-sorter: alpha
 
 jwt:
-  secret: wongoo3-secret-key
+  secret: wongoo3-secret-key-heo-yoo-jeong-hong-won-ki-since-2023-02-04
   access-expiration-ms: 1800000  # 30 minutes
+  refresh-expiration-ms: 1209600000 # 14일

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.wongoo.wongoo3.domain.terms.dto.AddTermsRequest;
 import org.wongoo.wongoo3.domain.terms.service.TermsService;
@@ -21,7 +22,7 @@ public class TermsController {
     /**
      * 관리자 약관 목록 조회
      */
-    // TODO : 관리자 권한 인증 추가
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/list")
     public ResponseEntity<?> getTermsList() {
         return ResponseEntity.ok(termsService.getAllTerms());
@@ -30,7 +31,7 @@ public class TermsController {
     /**
      * 관리자 약관 등록 및 수정
      */
-    // TODO : 관리자 권한 인증 추가
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("admin/upsert")
     public ResponseEntity<?> upsertTerms(@RequestBody @Valid List<AddTermsRequest> requests) {
         termsService.addTerms(requests);

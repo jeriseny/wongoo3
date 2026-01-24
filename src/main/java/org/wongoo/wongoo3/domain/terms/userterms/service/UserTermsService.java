@@ -29,6 +29,11 @@ public class UserTermsService {
 
     public void addUserTerms(User user, List<TermsRequest> termsRequests) {
         List<Terms> allTerms = termsService.getAllTerms();
+
+        if (allTerms.size() != termsRequests.size()) {
+            throw new WebErrorException(WebErrorCode.BAD_REQUEST, "약관 동의 개수가 일치하지 않습니다.");
+        }
+
         Map<TermsType, Terms> termsMap = allTerms.stream().collect(Collectors.toMap(Terms::getType, terms -> terms));
 
         for (TermsRequest request : termsRequests) {

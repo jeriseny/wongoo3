@@ -1,5 +1,6 @@
-package org.wongoo.wongoo3.global.security;
+package org.wongoo.wongoo3.global.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -9,14 +10,18 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.wongoo.wongoo3.global.jwt.JwtAuthenticationFilter;
-
-import javax.crypto.SecretKey;
+import org.wongoo.wongoo3.global.jwt.auth.JwtAuthenticationFilter;
+import org.wongoo.wongoo3.global.jwt.token.JwtClaimsResolver;
+import org.wongoo.wongoo3.global.jwt.token.JwtParser;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtParser parser;
+    private final JwtClaimsResolver claimsResolver;
 
 
     @Bean
@@ -31,8 +36,9 @@ public class SecurityConfig {
                 )
 
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
+                .addFilterBefore(new JwtAuthenticationFilter(parser, claimsResolver), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

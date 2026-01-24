@@ -1,10 +1,10 @@
 package org.wongoo.wongoo3.domain.user.dto;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.wongoo.wongoo3.domain.terms.dto.TermsRequest;
-import org.wongoo.wongoo3.domain.terms.dto.TermsType;
 
 import java.util.List;
 
@@ -22,7 +22,10 @@ public record LocalSignUpRequest(
         @NotBlank
         @Schema(description = "비밀번호", example = "15730254791!a")
         String password,
-        @Schema(description = "약관 동의 목록", implementation = TermsType.class)
+        @ArraySchema(
+                schema = @Schema(implementation = TermsRequest.class),
+                arraySchema = @Schema(description = "약관 동의 목록")
+        )
         List<TermsRequest> termsAgreeList
 ) implements SignUpRequest {
 }

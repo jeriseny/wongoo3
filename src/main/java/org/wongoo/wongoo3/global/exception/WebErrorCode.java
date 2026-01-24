@@ -8,7 +8,11 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum WebErrorCode {
     CONFLICT(HttpStatus.CONFLICT),
-    BAD_REQUEST(HttpStatus.BAD_REQUEST);
+    BAD_REQUEST(HttpStatus.BAD_REQUEST),
+    NOT_FOUND(HttpStatus.NOT_FOUND),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED),
+    FORBIDDEN(HttpStatus.FORBIDDEN),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final HttpStatus status;
 }

@@ -1,11 +1,11 @@
 package org.wongoo.wongoo3.domain.user;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.wongoo.wongoo3.domain.auth.dto.SocialType;
+import org.wongoo.wongoo3.domain.login.dto.SocialType;
+import org.wongoo.wongoo3.domain.login.dto.UserRole;
 import org.wongoo.wongoo3.domain.user.dto.UserStatus;
 import org.wongoo.wongoo3.global.jpa.BaseTimeEntity;
 
@@ -46,6 +46,10 @@ public class User extends BaseTimeEntity {
     @Column(name = "status", nullable = false)
     private UserStatus status;
 
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role;
+
     @Column(name = "password")
     private String password;
 
@@ -66,6 +70,7 @@ public class User extends BaseTimeEntity {
         user.phoneNumber = phoneNumber;
         user.password = password;
         user.status = UserStatus.ACTIVE;
+        user.role = UserRole.USER;
         return user;
     }
 
@@ -77,6 +82,11 @@ public class User extends BaseTimeEntity {
         user.socialType = socialType;
         user.socialId = socialId;
         user.status = UserStatus.ACTIVE;
+        user.role = UserRole.USER;
         return user;
+    }
+
+    public void changeRole(UserRole role) {
+        this.role = role;
     }
 }
