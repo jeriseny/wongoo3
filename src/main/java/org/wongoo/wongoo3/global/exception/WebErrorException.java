@@ -1,15 +1,14 @@
 package org.wongoo.wongoo3.global.exception;
 
+import lombok.Getter;
+
+@Getter
 public class WebErrorException extends RuntimeException {
 
-    WebErrorCode webErrorCode;
+    private final WebErrorCode errorCode;
 
-    public WebErrorException(WebErrorCode webErrorCode, String customMessage) {
-        super(customMessage);
-        this.webErrorCode = webErrorCode;
-    }
-
-    public WebErrorCode getErrorCode() {
-        return this.webErrorCode;
+    public WebErrorException(WebErrorCode errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
     }
 }
