@@ -2,7 +2,7 @@ package org.wongoo.wongoo3.domain.token.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.wongoo.wongoo3.domain.login.dto.UserRole;
+import org.wongoo.wongoo3.domain.auth.dto.UserRole;
 import org.wongoo.wongoo3.domain.token.dto.WkToken;
 import org.wongoo.wongoo3.global.jwt.token.JwtProvider;
 

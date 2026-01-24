@@ -3,7 +3,7 @@ package org.wongoo.wongoo3.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.wongoo.wongoo3.domain.login.dto.UserRole;
+import org.wongoo.wongoo3.domain.auth.dto.UserRole;
 import org.wongoo.wongoo3.domain.terms.userterms.service.UserTermsService;
 import org.wongoo.wongoo3.domain.user.User;
 import org.wongoo.wongoo3.domain.user.factory.UserSignUpFactory;

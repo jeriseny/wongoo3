@@ -64,6 +64,7 @@ class UserServiceTest {
     }
 
     @Test
+    @Transactional
     @DisplayName("회원 가입 테스트")
     void signUp() {
         Long id = userService.signUp(request);

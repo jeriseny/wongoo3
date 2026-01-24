@@ -2,14 +2,17 @@ package org.wongoo.wongoo3.global.jwt.token;
 
 import io.jsonwebtoken.Jwts;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.wongoo.wongoo3.domain.login.dto.UserRole;
+import org.wongoo.wongoo3.domain.auth.dto.UserRole;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
 
+@Slf4j
 @Component
 public class JwtProvider {
 
@@ -30,12 +33,15 @@ public class JwtProvider {
     public String createAccessToken(Long userId, String email, UserRole role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessTokenExpirationMillis);
+        String uuid = UUID.randomUUID().toString();
+        log.info("[JWT] Access Token UUID: {}", uuid);
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("email", email)
                 .claim("role", role.name())
                 .issuedAt(now)
+                .id(uuid)
                 .expiration(expiryDate)
                 .signWith(secretKey)
                 .compact();
@@ -45,12 +51,14 @@ public class JwtProvider {
         long expireTime = rememberMe
                 ? refreshTokenExpirationMillis             // 14일
                 : Duration.ofDays(1).toMillis();           // 1일
+        String uuid = UUID.randomUUID().toString();
 
         Date now = new Date();
         Date expiredAt = new Date(now.getTime() + expireTime);
 
         return Jwts.builder()
                 .subject(String.valueOf(userId))
+                .id(uuid)
                 .issuedAt(now)
                 .expiration(expiredAt)
                 .signWith(secretKey)

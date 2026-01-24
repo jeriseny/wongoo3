@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 import org.wongoo.wongoo3.domain.terms.Terms;
 import org.wongoo.wongoo3.domain.terms.dto.AddTermsRequest;
 import org.wongoo.wongoo3.domain.terms.dto.TermsType;
@@ -53,6 +54,7 @@ class TermsServiceTest {
 
     @Test
     @DisplayName("관리자 약관 등록 테스트")
+    @Transactional
     void addTerms() {
         // When
         termsService.addTerms(requests);
@@ -76,6 +78,7 @@ class TermsServiceTest {
 
     @Test
     @DisplayName("관리자 약관 수정 테스트 - 내용 변경 시 버전 증가")
+    @Transactional
     void updateTerms() {
         // given
         termsService.addTerms(requests);
@@ -105,6 +108,7 @@ class TermsServiceTest {
 
     @Test
     @DisplayName("약관 수정 시 히스토리에 수정 전 버전 저장")
+    @Transactional
     void updateTerms_history_saved() {
 
         // given

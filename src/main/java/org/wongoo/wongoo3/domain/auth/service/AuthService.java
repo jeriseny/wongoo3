@@ -1,11 +1,10 @@
-package org.wongoo.wongoo3.domain.login.service;
+package org.wongoo.wongoo3.domain.auth.service;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.wongoo.wongoo3.domain.login.dto.UserRole;
 import org.wongoo.wongoo3.domain.token.RefreshToken;
 import org.wongoo.wongoo3.domain.token.dto.WkToken;
 import org.wongoo.wongoo3.domain.token.repository.RefreshTokenRepository;
@@ -21,7 +20,7 @@ import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
-public class LoginService {
+public class AuthService {
 
     private final UserService userService;
     private final TokenService tokenService;

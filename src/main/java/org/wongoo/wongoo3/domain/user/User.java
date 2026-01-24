@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.wongoo.wongoo3.domain.login.dto.SocialType;
-import org.wongoo.wongoo3.domain.login.dto.UserRole;
+import org.wongoo.wongoo3.domain.auth.dto.SocialType;
+import org.wongoo.wongoo3.domain.auth.dto.UserRole;
 import org.wongoo.wongoo3.domain.user.dto.UserStatus;
 import org.wongoo.wongoo3.global.jpa.BaseTimeEntity;
 

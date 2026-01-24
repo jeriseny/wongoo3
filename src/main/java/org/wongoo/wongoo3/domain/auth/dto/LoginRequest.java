@@ -1,4 +1,4 @@
-package org.wongoo.wongoo3.domain.login.dto;
+package org.wongoo.wongoo3.domain.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

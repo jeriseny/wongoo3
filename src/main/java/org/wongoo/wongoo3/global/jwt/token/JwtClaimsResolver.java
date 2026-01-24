@@ -3,7 +3,7 @@ package org.wongoo.wongoo3.global.jwt.token;
 import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Component;
 import org.wongoo.wongoo3.domain.user.dto.LoginUser;
-import org.wongoo.wongoo3.domain.login.dto.UserRole;
+import org.wongoo.wongoo3.domain.auth.dto.UserRole;
 
 @Component
 public class JwtClaimsResolver {
