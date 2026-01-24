@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.wongoo.wongoo3.domain.auth.dto.SocialType;
 import org.wongoo.wongoo3.domain.auth.dto.UserRole;
+import org.wongoo.wongoo3.domain.auth.oauth2.dto.ProviderType;
 import org.wongoo.wongoo3.domain.user.dto.UserStatus;
 import org.wongoo.wongoo3.global.jpa.BaseTimeEntity;
 
@@ -54,11 +54,11 @@ public class User extends BaseTimeEntity {
     private String password;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "social_type")
-    private SocialType socialType;
+    @Column(name = "provider_type")
+    private ProviderType providerType;
 
-    @Column(name = "social_id")
-    private String socialId;
+    @Column(name = "provider_id")
+    private String providerId;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
@@ -74,13 +74,13 @@ public class User extends BaseTimeEntity {
         return user;
     }
 
-    public static User createSocialUser(String email, String nickname, String phoneNumber, SocialType socialType, String socialId) {
+    public static User createSocialUser(String email, String nickname, String phoneNumber, ProviderType providerType, String providerId) {
         User user = new User();
         user.email = email;
         user.nickname = nickname;
         user.phoneNumber = phoneNumber;
-        user.socialType = socialType;
-        user.socialId = socialId;
+        user.providerType = providerType;
+        user.providerId = providerId;
         user.status = UserStatus.ACTIVE;
         user.role = UserRole.USER;
         return user;

@@ -38,6 +38,7 @@ Spring Data JPA를 중심으로 사용하되,
 - Spring Data JPA
 - QueryDSL 5.0.0
 - MyBatis
+- RestClient
 - JWT (jjwt 0.13.0)
 - OAuth2 Client
 - Lombok

@@ -31,8 +31,8 @@ public class UserSignUpFactory {
                     social.email(),
                     social.nickname(),
                     social.phoneNumber(),
-                    social.socialType(),
-                    social.socialId()
+                    social.providerType(),
+                    social.providerId()
             );
             if (social.profileImageUrl() != null) {
                 user.setProfileImageUrl(social.profileImageUrl());

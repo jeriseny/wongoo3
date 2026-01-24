@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.wongoo.wongoo3.domain.auth.dto.UserRole;
 import org.wongoo.wongoo3.domain.user.dto.LocalSignUpRequest;
 import org.wongoo.wongoo3.domain.user.dto.LoginUser;
+import org.wongoo.wongoo3.domain.user.dto.SocialSignUpRequest;
 import org.wongoo.wongoo3.domain.user.service.UserService;
 import org.wongoo.wongoo3.global.jwt.annotation.CurrentUser;
 
@@ -20,7 +21,6 @@ public class UserController {
 
     private final UserService userService;
 
-
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/admin/role/{userId}")
     public ResponseEntity<?> changeUserRole(@CurrentUser LoginUser loginUser, @PathVariable Long userId, @RequestParam UserRole role) {
@@ -28,10 +28,20 @@ public class UserController {
         return ResponseEntity.ok("유저 권한이 변경되었습니다");
     }
 
-
     @PostMapping("/signup")
     public ResponseEntity<Long> signUp(@Valid @RequestBody LocalSignUpRequest request) {
         return ResponseEntity.ok(userService.signUp(request));
     }
+
+    @PostMapping("/signup/social")
+    public ResponseEntity<Long> socialSignUp(@Valid @RequestBody SocialSignUpRequest request) {
+        return ResponseEntity.ok(userService.signUp(request));
+    }
+
+    @GetMapping("/test/annotation")
+    public ResponseEntity<String> testAnnotation(@CurrentUser LoginUser loginUser) {
+        return ResponseEntity.ok("현재 로그인한 사용자 ID: " + loginUser.userId() + ", 이메일: " + loginUser.email() + "권한: " + loginUser.role());
+    }
+
 
 }

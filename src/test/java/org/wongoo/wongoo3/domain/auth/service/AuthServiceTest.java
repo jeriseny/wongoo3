@@ -89,7 +89,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("토큰 발급 테스트")
     void testTokenIssuance() {
-        WkToken wkToken = authService.loginWithLocal(loginRequest.email(), loginRequest.password(), loginRequest.rememberMe());
+        WkToken wkToken = authService.login(loginRequest.email(), loginRequest.password(), loginRequest.rememberMe());
         Claims claims = jwtParser.parseToken(wkToken.getAccessToken());
 
         LoginUser loginUser = jwtClaimsResolver.resolverLoginUser(claims);
@@ -104,7 +104,7 @@ class AuthServiceTest {
     void reissueToken_success() {
 
         // given: 로그인
-        WkToken issuedToken = authService.loginWithLocal(
+        WkToken issuedToken = authService.login(
                 loginRequest.email(),
                 loginRequest.password(),
                 true

@@ -12,6 +12,7 @@ public enum WebErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED),
     FORBIDDEN(HttpStatus.FORBIDDEN),
+    OAUTH_PROVIDER_ERROR(HttpStatus.BAD_GATEWAY),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final HttpStatus status;

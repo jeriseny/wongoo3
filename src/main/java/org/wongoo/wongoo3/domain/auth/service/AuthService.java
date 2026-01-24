@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.wongoo.wongoo3.domain.token.RefreshToken;
 import org.wongoo.wongoo3.domain.token.dto.WkToken;
 import org.wongoo.wongoo3.domain.token.repository.RefreshTokenRepository;
@@ -29,11 +30,17 @@ public class AuthService {
     private final JwtParser jwtParser;
 
     @Transactional
-    public WkToken loginWithLocal(String email, String password, boolean rememberMe) {
+    public WkToken login(String email, String password, boolean rememberMe) {
         User user = userService.getUserByEmail(email);
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new WebErrorException(WebErrorCode.UNAUTHORIZED, "비밀번호가 일치하지 않습니다");
+        if (user.getPassword() == null) {
+            throw new WebErrorException(WebErrorCode.BAD_REQUEST, "소셜 로그인으로 가입한 사용자 입니다");
+        }
+
+        if (!ObjectUtils.isEmpty(password)) {
+            if (!passwordEncoder.matches(password, user.getPassword())) {
+                throw new WebErrorException(WebErrorCode.UNAUTHORIZED, "비밀번호가 일치하지 않습니다");
+            }
         }
 
         WkToken wkToken = tokenService.issueTokens(user.getId(), user.getEmail(), user.getRole(), rememberMe);

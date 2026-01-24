@@ -31,16 +31,18 @@ public class UserService {
         return user.getId();
     }
 
-    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new WebErrorException(WebErrorCode.NOT_FOUND, "해당 이메일의 사용자를 찾을 수 없습니다: " + email));
     }
 
-    @Transactional(readOnly = true)
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new WebErrorException(WebErrorCode.NOT_FOUND, "해당 ID의 사용자를 찾을 수 없습니다: " + userId));
+    }
+
+    public User getUserByProviderId(String providerId) {
+        return userRepository.findByProviderId(providerId);
     }
 
 
