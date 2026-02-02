@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { postApi, commentApi } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import CommentItem from '../components/CommentItem';
 import Pagination from '../components/Pagination';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import { formatDateTime } from '../utils/formatDate';
 import type { Post, Comment, Page } from '../types';
 
 export default function PostDetail() {
@@ -21,7 +23,7 @@ export default function PostDetail() {
   const postId = Number(id);
   const isAuthor = user && post && user.nickName === post.authorNickname;
 
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     try {
       const response = await postApi.getDetail(postId);
       setPost(response.data);
@@ -29,21 +31,21 @@ export default function PostDetail() {
       alert('게시글을 찾을 수 없습니다.');
       navigate('/');
     }
-  };
+  }, [postId, navigate]);
 
-  const fetchComments = async (page: number) => {
+  const fetchComments = useCallback(async (page: number) => {
     try {
       const response = await commentApi.getList(postId, page, 20);
       setComments(response.data);
     } catch {
       console.error('Failed to fetch comments');
     }
-  };
+  }, [postId]);
 
   useEffect(() => {
     setIsLoading(true);
     Promise.all([fetchPost(), fetchComments(0)]).finally(() => setIsLoading(false));
-  }, [postId]);
+  }, [fetchPost, fetchComments]);
 
   const handleDelete = async () => {
     if (!confirm('게시글을 삭제하시겠습니까?')) return;
@@ -73,23 +75,8 @@ export default function PostDetail() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!post) return null;
@@ -103,7 +90,7 @@ export default function PostDetail() {
           <div className="flex items-center justify-between text-sm text-gray-500">
             <div className="flex items-center gap-4">
               <span className="font-medium text-gray-700">{post.authorNickname}</span>
-              <span>{formatDate(post.createdAt)}</span>
+              <span>{formatDateTime(post.createdAt)}</span>
               <span>조회 {post.viewCount}</span>
             </div>
             {isAuthor && (

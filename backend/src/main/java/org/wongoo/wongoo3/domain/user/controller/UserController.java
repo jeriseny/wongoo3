@@ -39,13 +39,13 @@ public class UserController {
         return ResponseEntity.ok(userService.signUp(request));
     }
 
-    @PostMapping("/info")
+    @GetMapping("/info")
     public ResponseEntity<?> getCurrentUserInfo(@CurrentUser LoginUser loginUser) {
         return ResponseEntity.ok(userService.getUserInfo(loginUser.userId()));
     }
 
     @PatchMapping("/info")
-    public ResponseEntity<?> changeUserInfo(@CurrentUser LoginUser loginUser, @RequestParam UserInfoRequest request) {
+    public ResponseEntity<?> changeUserInfo(@CurrentUser LoginUser loginUser, @RequestBody UserInfoRequest request) {
         userService.changeInfo(loginUser.userId(), request.nickname, request.phoneNumber);
         return ResponseEntity.ok("회원 정보가 변경되었습니다");
     }
@@ -55,11 +55,4 @@ public class UserController {
         userService.changePassword(loginUser.userId(), currentPassword, newPassword);
         return ResponseEntity.ok("비밀번호가 변경되었습니다");
     }
-
-    @GetMapping("/test/annotation")
-    public ResponseEntity<String> testAnnotation(@CurrentUser LoginUser loginUser) {
-        return ResponseEntity.ok("현재 로그인한 사용자 ID: " + loginUser.userId() + ", 이메일: " + loginUser.email() + ", 권한: " + loginUser.role());
-    }
-
-
 }

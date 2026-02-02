@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.wongoo.wongoo3.domain.terms.Terms;
 import org.wongoo.wongoo3.domain.terms.dto.AddTermsRequest;
 import org.wongoo.wongoo3.domain.terms.dto.TermsType;
-import org.wongoo.wongoo3.domain.terms.hisotry.service.TermsHistoryService;
+import org.wongoo.wongoo3.domain.terms.history.service.TermsHistoryService;
 import org.wongoo.wongoo3.domain.terms.repository.TermsRepository;
 
 import java.util.List;

@@ -4,6 +4,8 @@ import { postApi } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import PostCard from '../components/PostCard';
 import Pagination from '../components/Pagination';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import ErrorAlert from '../components/common/ErrorAlert';
 import type { PostListItem, Page } from '../types';
 
 export default function Home() {
@@ -19,7 +21,7 @@ export default function Home() {
       const response = await postApi.getList(page, 10);
       setPosts(response.data);
       setError('');
-    } catch (err) {
+    } catch {
       setError('게시글을 불러오는데 실패했습니다.');
     } finally {
       setIsLoading(false);
@@ -52,16 +54,10 @@ export default function Home() {
         )}
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 mb-6">
-          {error}
-        </div>
-      )}
+      <ErrorAlert message={error} className="mb-6" />
 
       {isLoading ? (
-        <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
+        <LoadingSpinner />
       ) : posts && posts.content.length > 0 ? (
         <>
           <div className="space-y-4">

@@ -1,4 +1,4 @@
-package org.wongoo.wongoo3.domain.terms.hisotry;
+package org.wongoo.wongoo3.domain.terms.history;
 
 import jakarta.persistence.*;
 import lombok.Getter;

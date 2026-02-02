@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { formatDate } from '../utils/formatDate';
 import type { PostListItem } from '../types';
 
 interface Props {
@@ -7,14 +8,6 @@ interface Props {
 }
 
 export default function PostCard({ post, compact = false }: Props) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   if (compact) {
     return (

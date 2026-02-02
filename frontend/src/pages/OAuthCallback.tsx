@@ -1,30 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { setTokens } = useAuthStore();
-  const [error, setError] = useState<string | null>(null);
+
+  const accessToken = searchParams.get('accessToken');
+  const refreshToken = searchParams.get('refreshToken');
+  const errorParam = searchParams.get('error');
+
+  const error = useMemo(() => {
+    if (errorParam) {
+      return decodeURIComponent(errorParam);
+    }
+    if (!accessToken || !refreshToken) {
+      return '토큰을 받지 못했습니다.';
+    }
+    return null;
+  }, [errorParam, accessToken, refreshToken]);
 
   useEffect(() => {
-    const accessToken = searchParams.get('accessToken');
-    const refreshToken = searchParams.get('refreshToken');
-    const errorParam = searchParams.get('error');
-
-    if (errorParam) {
-      setError(decodeURIComponent(errorParam));
-      return;
-    }
-
-    if (accessToken && refreshToken) {
+    if (accessToken && refreshToken && !errorParam) {
       setTokens(accessToken, refreshToken);
       navigate('/', { replace: true });
-    } else {
-      setError('토큰을 받지 못했습니다.');
     }
-  }, [searchParams, setTokens, navigate]);
+  }, [accessToken, refreshToken, errorParam, setTokens, navigate]);
 
   if (error) {
     return (
@@ -44,11 +47,9 @@ export default function OAuthCallback() {
   }
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">로그인 처리 중...</p>
-      </div>
+    <div className="min-h-[60vh] flex flex-col items-center justify-center">
+      <LoadingSpinner inline size="md" />
+      <p className="text-gray-600 mt-4">로그인 처리 중...</p>
     </div>
   );
 }

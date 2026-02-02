@@ -58,10 +58,7 @@ public class AuthService {
 
         WkToken wkToken = tokenService.issueTokens(user.getId(), user.getEmail(), user.getRole(), rememberMe);
         user.setLastLoginAt(LocalDateTime.now());
-        refreshTokenRepository.deleteByUser(user);
-
-        RefreshToken refreshToken = new RefreshToken(user, wkToken.getRefreshToken(), LocalDateTime.now().plus(wkToken.getRefreshTokenExpiresIn(), ChronoUnit.MILLIS));
-        refreshTokenRepository.save(refreshToken);
+        saveRefreshToken(user, wkToken);
 
         return wkToken;
     }
@@ -97,10 +94,7 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
 
         WkToken wkToken = tokenService.issueTokens(user.getId(), user.getEmail(), user.getRole(), rememberMe);
-        refreshTokenRepository.deleteByUser(user);
-
-        RefreshToken refreshToken = new RefreshToken(user, wkToken.getRefreshToken(), LocalDateTime.now().plus(wkToken.getRefreshTokenExpiresIn(), ChronoUnit.MILLIS));
-        refreshTokenRepository.save(refreshToken);
+        saveRefreshToken(user, wkToken);
 
         return wkToken;
     }
@@ -119,13 +113,19 @@ public class AuthService {
             throw new WebErrorException(WebErrorCode.UNAUTHORIZED, "리프레시 토큰이 만료되었습니다");
         }
 
-        refreshTokenRepository.deleteByUser(user);
-
         WkToken newToken = tokenService.issueTokens(userId, user.getEmail(), user.getRole(), rememberMe);
-
-        RefreshToken newRefreshToken = new RefreshToken(user, newToken.getRefreshToken(), LocalDateTime.now().plus(newToken.getRefreshTokenExpiresIn(), ChronoUnit.MILLIS));
-        refreshTokenRepository.save(newRefreshToken);
+        saveRefreshToken(user, newToken);
 
         return newToken;
+    }
+
+    private void saveRefreshToken(User user, WkToken wkToken) {
+        refreshTokenRepository.deleteByUser(user);
+        RefreshToken refreshToken = new RefreshToken(
+                user,
+                wkToken.getRefreshToken(),
+                LocalDateTime.now().plus(wkToken.getRefreshTokenExpiresIn(), ChronoUnit.MILLIS)
+        );
+        refreshTokenRepository.save(refreshToken);
     }
 }

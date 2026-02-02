@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Comment } from '../types';
 import { useAuthStore } from '../stores/authStore';
 import { commentApi } from '../api/client';
+import { formatDate } from '../utils/formatDate';
 
 interface Props {
   comment: Comment;
@@ -15,18 +16,7 @@ export default function CommentItem({ comment, onUpdate, onDelete }: Props) {
   const [editContent, setEditContent] = useState(comment.content);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isAuthor = user && user.email === comment.authorNickname || user?.nickName === comment.authorNickname;
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const isAuthor = user && user.nickName === comment.authorNickname;
 
   const handleUpdate = async () => {
     if (!editContent.trim()) return;
@@ -35,7 +25,7 @@ export default function CommentItem({ comment, onUpdate, onDelete }: Props) {
       await commentApi.update(comment.id, { content: editContent });
       setIsEditing(false);
       onUpdate();
-    } catch (error) {
+    } catch {
       alert('댓글 수정에 실패했습니다.');
     } finally {
       setIsSubmitting(false);
@@ -47,7 +37,7 @@ export default function CommentItem({ comment, onUpdate, onDelete }: Props) {
     try {
       await commentApi.delete(comment.id);
       onDelete();
-    } catch (error) {
+    } catch {
       alert('댓글 삭제에 실패했습니다.');
     }
   };
@@ -57,7 +47,7 @@ export default function CommentItem({ comment, onUpdate, onDelete }: Props) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="font-medium text-gray-900">{comment.authorNickname}</span>
-          <span className="text-sm text-gray-500">{formatDate(comment.createdAt)}</span>
+          <span className="text-sm text-gray-500">{formatDate(comment.createdAt, 'datetime-short')}</span>
         </div>
         {isAuthor && !isEditing && (
           <div className="flex gap-2">

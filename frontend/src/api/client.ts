@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { tokenManager } from '../utils/tokenManager';
 import type {
   LoginRequest,
   SignupRequest,
@@ -23,7 +24,7 @@ const api = axios.create({
 
 // Request interceptor - add auth token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+  const token = tokenManager.getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -35,7 +36,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = tokenManager.getRefreshToken();
       if (refreshToken && !error.config._retry) {
         error.config._retry = true;
         try {
@@ -43,13 +44,11 @@ api.interceptors.response.use(
             token: refreshToken,
             rememberMe: false,
           });
-          localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('refreshToken', data.refreshToken);
+          tokenManager.setTokens(data.accessToken, data.refreshToken);
           error.config.headers.Authorization = `Bearer ${data.accessToken}`;
           return api(error.config);
         } catch {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+          tokenManager.clearTokens();
           window.location.href = '/login';
         }
       }
@@ -73,10 +72,10 @@ export const authApi = {
 // User API
 export const userApi = {
   getMyInfo: () =>
-    api.post<UserInfo>('/user/info'),
+    api.get<UserInfo>('/user/info'),
 
   updateInfo: (nickname: string, phoneNumber: string) =>
-    api.patch('/user/info', null, { params: { nickname, phoneNumber } }),
+    api.patch('/user/info', { nickname, phoneNumber }),
 
   changePassword: (currentPassword: string, newPassword: string) =>
     api.post('/user/change-password', null, {

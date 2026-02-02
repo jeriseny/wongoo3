@@ -1,10 +1,10 @@
-package org.wongoo.wongoo3.domain.terms.hisotry.service;
+package org.wongoo.wongoo3.domain.terms.history.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.wongoo.wongoo3.domain.terms.Terms;
-import org.wongoo.wongoo3.domain.terms.hisotry.TermsHistory;
-import org.wongoo.wongoo3.domain.terms.hisotry.repository.TermsHistoryRepository;
+import org.wongoo.wongoo3.domain.terms.history.TermsHistory;
+import org.wongoo.wongoo3.domain.terms.history.repository.TermsHistoryRepository;
 
 @Service
 @RequiredArgsConstructor

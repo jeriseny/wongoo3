@@ -14,7 +14,6 @@ import org.wongoo.wongoo3.domain.user.repository.UserRepository;
 import org.wongoo.wongoo3.global.exception.WebErrorCode;
 import org.wongoo.wongoo3.global.exception.WebErrorException;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -45,7 +44,7 @@ public class UserService {
 
     @Transactional
     public void changeUserRole(Long userId, UserRole role, Long loginUserId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new WebErrorException(WebErrorCode.NOT_FOUND, "해당 ID의 사용자를 찾을 수 없습니다: " + userId));
+        User user = getUserById(userId);
         if (userId.equals(loginUserId)) {
             throw new WebErrorException(WebErrorCode.BAD_REQUEST, "본인의 권한은 변경할 수 없습니다");
         }

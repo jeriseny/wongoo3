@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { userApi } from '../api/client';
+import { formatDate } from '../utils/formatDate';
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -62,16 +63,6 @@ export default function MyPage() {
   const handleLogout = () => {
     logout();
     navigate('/');
-  };
-
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
   };
 
   if (!user) return null;

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { authApi, userApi } from '../api/client';
+import { tokenManager } from '../utils/tokenManager';
 import type { UserInfo, LoginRequest, SignupRequest } from '../types';
 
 interface AuthState {
@@ -23,8 +24,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (data: LoginRequest) => {
     const response = await authApi.login(data);
     const { accessToken, refreshToken } = response.data;
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    tokenManager.setTokens(accessToken, refreshToken);
 
     const userResponse = await userApi.getMyInfo();
     set({ isAuthenticated: true, user: userResponse.data });
@@ -35,8 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    tokenManager.clearTokens();
     set({ isAuthenticated: false, user: null });
   },
 
@@ -50,14 +49,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   initialize: async () => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
+    if (tokenManager.hasAccessToken()) {
       try {
         const response = await userApi.getMyInfo();
         set({ isAuthenticated: true, user: response.data, isLoading: false });
       } catch {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        tokenManager.clearTokens();
         set({ isAuthenticated: false, user: null, isLoading: false });
       }
     } else {
@@ -66,15 +63,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setTokens: async (accessToken: string, refreshToken: string) => {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    tokenManager.setTokens(accessToken, refreshToken);
 
     try {
       const response = await userApi.getMyInfo();
       set({ isAuthenticated: true, user: response.data });
     } catch {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      tokenManager.clearTokens();
       set({ isAuthenticated: false, user: null });
       throw new Error('사용자 정보를 가져오는데 실패했습니다.');
     }
