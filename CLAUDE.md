@@ -7,10 +7,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 wongoo3/
 ├── backend/      # Spring Boot 3.4 / Java 21 API Server
-├── frontend/     # React + TypeScript (Vite)
+├── frontend/     # React 19 + TypeScript + Tailwind CSS
 ├── CLAUDE.md     # This file
 └── README.md
 ```
+
+---
 
 ## Backend (Spring Boot)
 
@@ -25,89 +27,52 @@ cd backend
 # Run tests (uses H2 in-memory database with test profile)
 ./gradlew test
 
-# Run a single test class
-./gradlew test --tests "org.wongoo.wongoo3.domain.user.service.UserServiceTest"
-
 # Start application (requires MySQL on localhost:3306)
 ./gradlew bootRun
-
-# Clean generated sources
-./gradlew clean
 ```
 
 ### Package Structure
 
 ```
 org.wongoo.wongoo3/
-├── domain/           # Business logic (feature-based organization)
-│   ├── auth/         # Authentication (local login, OAuth2, token reissue)
-│   ├── user/         # User registration, profile management
-│   ├── post/         # Post CRUD (create, read, update, delete with pagination)
-│   ├── comment/      # Comment CRUD (nested under posts)
-│   ├── token/        # JWT token issuance and refresh token storage
-│   ├── terms/        # Terms of service, user agreements, version history
-│   └── file/         # File upload handling
-└── global/           # Cross-cutting concerns
-    ├── config/       # Spring configurations (Security, Web, QueryDSL, Swagger)
-    ├── jwt/          # JWT utilities (JwtProvider, JwtParser, JwtAuthenticationFilter)
-    ├── exception/    # GlobalExceptionHandler, WebErrorException, WebErrorCode
-    ├── web/          # LoginUserArgumentResolver for @CurrentUser injection
-    ├── jpa/          # BaseTimeEntity (createdAt/updatedAt)
-    └── policy/       # Business validation policies
+├── domain/
+│   ├── auth/         # Authentication (login, OAuth2, token)
+│   ├── user/         # User management
+│   ├── post/         # Post CRUD
+│   ├── comment/      # Comment CRUD
+│   ├── token/        # JWT token storage
+│   ├── terms/        # Terms of service
+│   └── file/         # File upload
+└── global/
+    ├── config/       # Spring configurations
+    ├── jwt/          # JWT utilities
+    ├── exception/    # Error handling
+    └── jpa/          # BaseTimeEntity
 ```
-
-### Authentication Flow
-
-**JWT Authentication:**
-- `JwtAuthenticationFilter` extracts Bearer token from Authorization header
-- `JwtParser` validates and parses claims (userId, email, role)
-- `LoginUserArgumentResolver` injects `@CurrentUser LoginUser` into controller methods
-- Access token: 30 min, Refresh token: 14 days
-
-**OAuth2 (Naver implemented):**
-- `OAuth2Provider` interface with `NaverOAuth2Provider` implementation
-- `OAuth2ProviderRegistry` manages providers by `ProviderType` enum
-- `OAuth2Service` orchestrates OAuth2 login flow
-
-### Database
-
-- **Production**: MySQL (localhost:3306/wongoo3)
-- **Tests**: H2 in-memory with `@ActiveProfiles("test")` and `create-drop` schema
 
 ### API Endpoints
 
-**Public (no auth required):**
-- `POST /api/user/signup` - Local registration
-- `POST /api/user/signup/social` - OAuth2 registration
-- `POST /api/auth/**` - Login, token reissue, OAuth2 callbacks
-- `GET /swagger-ui/**`, `/v3/api-docs/**` - API documentation
+**Auth:**
+- `POST /api/auth/login/local` - Login with email/password
+- `POST /api/auth/reissue` - Refresh token
 
-**Post API (auth required):**
+**User:**
+- `POST /api/user/signup` - Register
+- `POST /api/user/info` - Get my info
+- `PATCH /api/user/info` - Update info
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/post` | Create a new post |
-| GET | `/api/post/{postId}` | Get post detail (increments view count) |
-| GET | `/api/post?page=0&size=10` | Get paginated post list |
-| PATCH | `/api/post/{postId}` | Update post (author only) |
-| DELETE | `/api/post/{postId}` | Delete post (author only) |
+**Post:**
+- `GET /api/post` - List posts (paginated)
+- `GET /api/post/{id}` - Get post detail
+- `POST /api/post` - Create post
+- `PATCH /api/post/{id}` - Update post
+- `DELETE /api/post/{id}` - Delete post
 
-**Comment API (auth required):**
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/post/{postId}/comment` | Create a comment on a post |
-| GET | `/api/post/{postId}/comment?page=0&size=20` | Get paginated comments for a post |
-| PATCH | `/api/comment/{commentId}` | Update comment (author only) |
-| DELETE | `/api/comment/{commentId}` | Delete comment (author only) |
-
-### Entity Relationships
-
-```
-User (1) ──── (N) Post (1) ──── (N) Comment
-  │                                    │
-  └────────────── (N) ─────────────────┘
-```
+**Comment:**
+- `GET /api/post/{id}/comment` - List comments
+- `POST /api/post/{id}/comment` - Create comment
+- `PATCH /api/comment/{id}` - Update comment
+- `DELETE /api/comment/{id}` - Delete comment
 
 ---
 
@@ -118,46 +83,85 @@ User (1) ──── (N) Post (1) ──── (N) Comment
 ```bash
 cd frontend
 
-# Install dependencies
-npm install
-
-# Start development server (default: http://localhost:5173)
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Lint code
-npm run lint
+npm install          # Install dependencies
+npm run dev          # Start dev server (http://localhost:5173)
+npm run build        # Build for production
+npm run lint         # Lint code
 ```
 
 ### Tech Stack
 
-- **React 19** with TypeScript
-- **Vite** for build tooling
-- **ESLint** for code quality
+- **React 19** + TypeScript
+- **Tailwind CSS** - Styling
+- **React Router v7** - Routing
+- **Zustand** - State management
+- **Axios** - HTTP client
+- **Vite** - Build tool
 
 ### Project Structure
 
 ```
-frontend/
-├── public/           # Static assets
-├── src/
-│   ├── assets/       # Images, fonts, etc.
-│   ├── App.tsx       # Main application component
-│   └── main.tsx      # Entry point
-├── index.html
-├── vite.config.ts
-└── package.json
+frontend/src/
+├── api/
+│   └── client.ts           # Axios instance with interceptors
+├── components/
+│   ├── Header.tsx          # Navigation bar
+│   ├── Layout.tsx          # Page layout
+│   ├── ProtectedRoute.tsx  # Auth guard
+│   ├── PostCard.tsx        # Post list item
+│   ├── CommentItem.tsx     # Comment item
+│   └── Pagination.tsx      # Pagination component
+├── pages/
+│   ├── Home.tsx            # Post list (/)
+│   ├── Login.tsx           # Login page (/login)
+│   ├── Signup.tsx          # Register page (/signup)
+│   ├── PostDetail.tsx      # Post detail (/post/:id)
+│   ├── PostWrite.tsx       # Write/Edit (/post/write, /post/edit/:id)
+│   └── MyPage.tsx          # My page (/mypage)
+├── stores/
+│   └── authStore.ts        # Auth state (Zustand)
+├── types/
+│   └── index.ts            # TypeScript types
+├── App.tsx                 # Router setup
+├── main.tsx                # Entry point
+└── index.css               # Tailwind import
 ```
+
+### Routes
+
+| Path | Page | Auth Required |
+|------|------|---------------|
+| `/` | Home (Post list) | No |
+| `/login` | Login | No |
+| `/signup` | Sign up | No |
+| `/post/:id` | Post detail | No |
+| `/post/write` | Write post | Yes |
+| `/post/edit/:id` | Edit post | Yes |
+| `/mypage` | My page | Yes |
+
+### API Proxy
+
+Vite dev server proxies `/api/*` to `http://localhost:8080` (backend).
 
 ---
 
-## Development Notes
+## Development
 
-- Backend runs on `http://localhost:8080`
-- Frontend runs on `http://localhost:5173`
-- For API calls from frontend, configure CORS or use Vite proxy
+### Run Both Servers
+
+```bash
+# Terminal 1: Backend
+cd backend && ./gradlew bootRun
+
+# Terminal 2: Frontend
+cd frontend && npm run dev
+```
+
+### Test Flow
+
+1. **회원가입** → `/signup`
+2. **로그인** → `/login`
+3. **게시글 작성** → `/post/write`
+4. **게시글 조회** → `/post/{id}`
+5. **댓글 작성** → Post detail page
+6. **마이페이지** → `/mypage`

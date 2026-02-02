@@ -29,6 +29,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request.email(), request.password(), request.rememberMe()));
     }
 
+    @Deprecated(since = "OAuth2 로그인으로 대체됨", forRemoval = true)
     @PostMapping("/login/oauth2")
     public ResponseEntity<?> loginWithOAuth2(
             @RequestParam ProviderType providerType,
@@ -45,6 +46,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.reissueTokens(request.token(), request.rememberMe()));
     }
 
+    @Deprecated(since = "OAuth2 로그인으로 대체됨", forRemoval = true)
     @GetMapping("/oauth2/uri")
     public ResponseEntity<?> getLoginPage(@RequestParam ProviderType providerType) {
         String state = java.util.UUID.randomUUID().toString();
