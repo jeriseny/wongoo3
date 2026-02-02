@@ -12,6 +12,7 @@ import Signup from './pages/Signup';
 import PostDetail from './pages/PostDetail';
 import PostWrite from './pages/PostWrite';
 import MyPage from './pages/MyPage';
+import OAuthCallback from './pages/OAuthCallback';
 
 function App() {
   const { initialize, isLoading } = useAuthStore();
@@ -37,6 +38,7 @@ function App() {
           <Route path="/board" element={<Board />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route path="/post/:id" element={<PostDetail />} />
 
           {/* Protected routes */}

@@ -78,3 +78,31 @@ CREATE TABLE WK_REFRESH_TOKEN (
 
     CONSTRAINT fk_refresh_token_user FOREIGN KEY (user_id) REFERENCES WK_USER (id)
 );
+
+DROP TABLE IF EXISTS WK_POST;
+CREATE TABLE WK_POST (
+    id                              BIGINT AUTO_INCREMENT       PRIMARY KEY,
+    title                           VARCHAR(200)                NOT NULL,
+    content                         TEXT                        NOT NULL,
+    author_id                       BIGINT                      NOT NULL,
+    view_count                      BIGINT                      NOT NULL DEFAULT 0,
+    created_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_post_author FOREIGN KEY (author_id) REFERENCES WK_USER (id)
+);
+
+DROP TABLE IF EXISTS WK_COMMENT;
+CREATE TABLE WK_COMMENT (
+    id                              BIGINT AUTO_INCREMENT       PRIMARY KEY,
+    content                         TEXT                        NOT NULL,
+    author_id                       BIGINT                      NOT NULL,
+    post_id                         BIGINT                      NOT NULL,
+    created_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_comment_author FOREIGN KEY (author_id) REFERENCES WK_USER (id),
+    CONSTRAINT fk_comment_post   FOREIGN KEY (post_id)   REFERENCES WK_POST (id)
+);
+
+

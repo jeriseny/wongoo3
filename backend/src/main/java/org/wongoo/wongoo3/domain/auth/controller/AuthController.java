@@ -38,7 +38,7 @@ public class AuthController {
             @RequestParam(defaultValue = "false") boolean rememberMe) {
         OAuth2UserProfile userProfile = oAuth2Service.getUserProfile(providerType, code, state);
 
-        return ResponseEntity.ok(oAuth2Service.processOAuth2Login(userProfile, providerType, rememberMe));
+        return ResponseEntity.ok(authService.processOAuth2Login(userProfile, providerType, rememberMe));
     }
 
     @PostMapping("/reissue")

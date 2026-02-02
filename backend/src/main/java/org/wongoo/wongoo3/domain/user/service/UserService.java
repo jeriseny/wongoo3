@@ -14,6 +14,9 @@ import org.wongoo.wongoo3.domain.user.repository.UserRepository;
 import org.wongoo.wongoo3.global.exception.WebErrorCode;
 import org.wongoo.wongoo3.global.exception.WebErrorException;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -75,9 +78,8 @@ public class UserService {
         user.changePassword(newEncodedPassword);
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new WebErrorException(WebErrorCode.NOT_FOUND, "해당 이메일의 사용자를 찾을 수 없습니다: " + email));
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public User getUserById(Long userId) {
