@@ -5,7 +5,6 @@ import { useAuthStore } from './stores/authStore';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
-import Home from './pages/Home';
 import Board from './pages/Board';
 import Login from './pages/Login';
 import Signup from './pages/Signup';

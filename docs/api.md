@@ -1,108 +1,110 @@
 # API Reference
 
-## Authentication
+Base URL: `/api`
 
-### Login
-- **POST** `/api/auth/login/local`
-- Request: `{ email, password, rememberMe }`
-- Response: `{ accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn }`
+## Board
 
-### Token Reissue
-- **POST** `/api/auth/reissue`
-- Request: `{ token, rememberMe }`
-- Response: `{ accessToken, refreshToken, ... }`
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/board` | - | 게시판 목록 |
+| GET | `/board/{slug}` | - | 게시판 상세 |
+| POST | `/board` | Admin | 게시판 생성 |
 
-### OAuth2 Login
-- **GET** `/api/oauth2/authorization/{provider}`
-- Providers: `naver`, `kakao`, `google`
-- Redirects to provider login page, then callback with tokens
+### Response
+```json
+{ "id": 1, "name": "자유게시판", "slug": "free", "description": "..." }
+```
+
+---
+
+## Post
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/post` | - | 게시글 목록 |
+| GET | `/post?boardSlug=free` | - | 게시판별 목록 |
+| GET | `/post/{id}` | - | 게시글 상세 |
+| POST | `/post` | User | 게시글 작성 |
+| PATCH | `/post/{id}` | Author | 게시글 수정 |
+| DELETE | `/post/{id}` | Author | 게시글 삭제 |
+
+### Create Request
+```json
+{ "title": "제목", "content": "내용", "boardSlug": "free" }
+```
+
+### Response
+```json
+{
+  "id": 1,
+  "title": "제목",
+  "content": "내용",
+  "authorNickname": "작성자",
+  "boardSlug": "free",
+  "boardName": "자유게시판",
+  "viewCount": 0,
+  "createdAt": "2024-01-01T00:00:00"
+}
+```
+
+---
+
+## Comment
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/post/{postId}/comment` | - | 댓글 목록 |
+| POST | `/post/{postId}/comment` | User | 댓글 작성 |
+| PATCH | `/comment/{id}` | Author | 댓글 수정 |
+| DELETE | `/comment/{id}` | Author | 댓글 삭제 |
+
+---
+
+## Auth
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/login/local` | 로그인 |
+| POST | `/auth/reissue` | 토큰 재발급 |
+| GET | `/oauth2/authorization/naver` | 네이버 OAuth |
+
+### Login Request
+```json
+{ "email": "test@test.com", "password": "password", "rememberMe": false }
+```
+
+### Token Response
+```json
+{
+  "accessToken": "...",
+  "refreshToken": "...",
+  "accessTokenExpiresIn": 1800000,
+  "refreshTokenExpiresIn": 1209600000
+}
+```
 
 ---
 
 ## User
 
-### Sign Up
-- **POST** `/api/user/signup`
-- Request: `{ email, nickname, phoneNumber, password, termsAgreeList }`
-- Response: User ID
-
-### Get User Info
-- **GET** `/api/user/info`
-- Headers: `Authorization: Bearer {token}`
-- Response: `{ email, nickName, phoneNumber, isSocial, providerType, createdAt }`
-
-### Update User Info
-- **PATCH** `/api/user/info`
-- Headers: `Authorization: Bearer {token}`
-- Request: `{ nickname, phoneNumber }`
-
-### Change Password
-- **POST** `/api/user/change-password`
-- Headers: `Authorization: Bearer {token}`
-- Params: `currentPassword`, `newPassword`
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/user/signup` | - | 회원가입 |
+| GET | `/user/info` | User | 내 정보 |
+| PATCH | `/user/info` | User | 정보 수정 |
+| POST | `/user/change-password` | User | 비밀번호 변경 |
 
 ---
 
-## Posts
+## Error Response
 
-### List Posts
-- **GET** `/api/post`
-- Params: `page` (default 0), `size` (default 10)
-- Response: Paginated list of posts
+```json
+{ "code": "NOT_FOUND", "message": "리소스를 찾을 수 없습니다" }
+```
 
-### Get Post
-- **GET** `/api/post/{id}`
-- Response: `{ id, title, content, authorNickname, viewCount, createdAt, updatedAt }`
-
-### Create Post
-- **POST** `/api/post`
-- Headers: `Authorization: Bearer {token}`
-- Request: `{ title, content }`
-- Response: Created post
-
-### Update Post
-- **PATCH** `/api/post/{id}`
-- Headers: `Authorization: Bearer {token}`
-- Request: `{ title, content }`
-- Response: Updated post
-
-### Delete Post
-- **DELETE** `/api/post/{id}`
-- Headers: `Authorization: Bearer {token}`
-
----
-
-## Comments
-
-### List Comments
-- **GET** `/api/post/{postId}/comment`
-- Params: `page`, `size`
-- Response: Paginated list of comments
-
-### Create Comment
-- **POST** `/api/post/{postId}/comment`
-- Headers: `Authorization: Bearer {token}`
-- Request: `{ content }`
-- Response: Created comment
-
-### Update Comment
-- **PATCH** `/api/comment/{id}`
-- Headers: `Authorization: Bearer {token}`
-- Request: `{ content }`
-- Response: Updated comment
-
-### Delete Comment
-- **DELETE** `/api/comment/{id}`
-- Headers: `Authorization: Bearer {token}`
-
----
-
-## Error Responses
-
-| HTTP Status | Error Code | Description |
-|-------------|------------|-------------|
-| 400 | BAD_REQUEST | Invalid request |
-| 401 | UNAUTHORIZED | Authentication required |
-| 403 | FORBIDDEN | Access denied |
-| 404 | NOT_FOUND | Resource not found |
-| 409 | CONFLICT | Duplicate resource |
+| Status | Code | Description |
+|--------|------|-------------|
+| 400 | BAD_REQUEST | 잘못된 요청 |
+| 401 | UNAUTHORIZED | 인증 필요 |
+| 403 | FORBIDDEN | 권한 없음 |
+| 404 | NOT_FOUND | 리소스 없음 |

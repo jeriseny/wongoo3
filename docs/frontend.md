@@ -1,117 +1,86 @@
 # Frontend Architecture
 
 ## Tech Stack
-- **React 19** + **TypeScript**
-- **Tailwind CSS** for styling
-- **React Router v7** for routing
-- **Zustand** for state management
-- **Axios** for HTTP requests
-- **Vite** as build tool
 
-## Project Structure
+- React 19 + TypeScript
+- Tailwind CSS
+- React Router v7
+- Zustand (상태관리)
+- Axios
+- Vite
+
+## Structure
 
 ```
 frontend/src/
 ├── api/
-│   └── client.ts           # Axios instance with interceptors
+│   └── client.ts           # Axios 인스턴스, API 모듈
 ├── components/
-│   ├── common/             # Reusable UI components
+│   ├── common/             # 공통 컴포넌트
 │   │   ├── LoadingSpinner.tsx
 │   │   ├── ErrorAlert.tsx
-│   │   ├── OAuthButtons.tsx
-│   │   └── FormInput.tsx
-│   ├── Header.tsx          # Navigation bar
-│   ├── Layout.tsx          # Page layout wrapper
-│   ├── ProtectedRoute.tsx  # Auth guard for routes
-│   ├── PostCard.tsx        # Post list item
-│   ├── CommentItem.tsx     # Comment display/edit
-│   └── Pagination.tsx      # Pagination controls
+│   │   └── OAuthButtons.tsx
+│   ├── Header.tsx
+│   ├── Layout.tsx
+│   ├── ProtectedRoute.tsx
+│   ├── PostCard.tsx
+│   └── Pagination.tsx
 ├── pages/
-│   ├── Board.tsx           # Post list (/)
-│   ├── Login.tsx           # Login (/login)
-│   ├── Signup.tsx          # Registration (/signup)
-│   ├── PostDetail.tsx      # Post view (/post/:id)
-│   ├── PostWrite.tsx       # Create/edit (/post/write, /post/edit/:id)
-│   ├── MyPage.tsx          # User profile (/mypage)
-│   └── OAuthCallback.tsx   # OAuth redirect handler
+│   ├── Board.tsx           # 게시판 (/, /board, /board/:slug)
+│   ├── PostDetail.tsx      # 게시글 상세
+│   ├── PostWrite.tsx       # 글 작성/수정
+│   ├── Login.tsx
+│   ├── Signup.tsx
+│   ├── MyPage.tsx
+│   └── OAuthCallback.tsx
 ├── stores/
-│   └── authStore.ts        # Auth state (Zustand)
+│   └── authStore.ts        # 인증 상태 (Zustand)
 ├── utils/
-│   ├── formatDate.ts       # Date formatting utilities
-│   └── tokenManager.ts     # Token localStorage operations
+│   ├── formatDate.ts
+│   └── tokenManager.ts
 ├── types/
-│   └── index.ts            # TypeScript interfaces
-├── App.tsx                 # Router configuration
-├── main.tsx                # Entry point
-└── index.css               # Tailwind imports
+│   └── index.ts            # TypeScript 인터페이스
+└── App.tsx                 # 라우터 설정
 ```
 
 ## Routes
 
-| Path | Component | Auth Required | Description |
-|------|-----------|---------------|-------------|
-| `/` | Board | No | Post list |
-| `/login` | Login | No | Login form |
-| `/signup` | Signup | No | Registration form |
-| `/post/:id` | PostDetail | No | View post |
-| `/post/write` | PostWrite | Yes | Create post |
-| `/post/edit/:id` | PostWrite | Yes | Edit post |
-| `/mypage` | MyPage | Yes | User profile |
-| `/oauth/callback` | OAuthCallback | No | OAuth redirect |
+| Path | Component | Auth | Description |
+|------|-----------|------|-------------|
+| `/` | Board | - | 전체 게시글 |
+| `/board` | Board | - | 전체 게시글 |
+| `/board/:slug` | Board | - | 게시판별 게시글 |
+| `/post/:id` | PostDetail | - | 게시글 상세 |
+| `/post/write` | PostWrite | Yes | 글 작성 |
+| `/post/edit/:id` | PostWrite | Yes | 글 수정 |
+| `/login` | Login | - | 로그인 |
+| `/signup` | Signup | - | 회원가입 |
+| `/mypage` | MyPage | Yes | 마이페이지 |
 
-## State Management
+## API Modules
 
-### Auth Store (Zustand)
 ```typescript
-interface AuthState {
-  isAuthenticated: boolean;
-  user: UserInfo | null;
-  isLoading: boolean;
-  login: (data) => Promise<void>;
-  logout: () => void;
-  initialize: () => Promise<void>;
-}
+boardApi.getList()              // 게시판 목록
+postApi.getList(page, size, boardSlug)  // 게시글 목록
+postApi.create({ title, content, boardSlug })
+commentApi.getList(postId, page, size)
+authApi.login({ email, password })
+userApi.getMyInfo()
 ```
-
-### Token Management
-- Access token: Short-lived JWT for API requests
-- Refresh token: Long-lived token for renewal
-- Storage: localStorage via `tokenManager` utility
-- Auto-refresh: 401 interceptor handles token renewal
-
-## API Integration
-
-### Axios Instance
-- Base URL: `/api` (proxied to backend in dev)
-- Request interceptor: Adds `Authorization` header
-- Response interceptor: Auto-refresh on 401
-
-### API Modules
-- `authApi`: Login, signup, token reissue
-- `userApi`: User profile operations
-- `postApi`: CRUD for posts
-- `commentApi`: CRUD for comments
 
 ## Commands
 
 ```bash
-# Install dependencies
-npm install
-
-# Development server
-npm run dev
-
-# Production build
-npm run build
-
-# Lint
-npm run lint
+npm install       # 의존성 설치
+npm run dev       # 개발 서버 (5173)
+npm run build     # 프로덕션 빌드
+npm run lint      # ESLint
 ```
 
-## Development
+## Vite Proxy
 
-### Proxy Configuration (vite.config.ts)
 ```typescript
+// vite.config.ts
 server: {
   proxy: {
     '/api': 'http://localhost:8080'

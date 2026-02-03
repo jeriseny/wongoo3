@@ -1,105 +1,99 @@
 # Backend Architecture
 
 ## Tech Stack
-- **Java 21** + **Spring Boot 3.4**
-- **Spring Security** + JWT authentication
-- **Spring Data JPA** + QueryDSL
-- **MySQL** (production) / **H2** (testing)
-- **Gradle** build system
+
+- Java 21 + Spring Boot 3.4
+- Spring Security + JWT + OAuth2
+- Spring Data JPA + MySQL
+- Gradle
 
 ## Package Structure
 
 ```
 org.wongoo.wongoo3/
 ├── domain/
-│   ├── auth/           # Authentication & OAuth2
+│   ├── auth/
 │   │   ├── controller/
 │   │   ├── service/
 │   │   ├── dto/
-│   │   └── oauth2/     # OAuth2 providers (Naver, Kakao, Google)
-│   ├── user/           # User management
+│   │   └── oauth2/
+│   │       ├── provider/     # OAuth2 프로바이더 (Naver)
+│   │       ├── dto/
+│   │       └── registry/
+│   ├── user/
 │   │   ├── controller/
 │   │   ├── service/
 │   │   ├── dto/
-│   │   ├── factory/
 │   │   └── repository/
-│   ├── post/           # Posts CRUD
-│   ├── comment/        # Comments CRUD
-│   ├── token/          # JWT token storage
-│   ├── terms/          # Terms of service
-│   │   ├── history/    # Terms version history
-│   │   └── userterms/  # User-terms relationship
-│   └── file/           # File upload
+│   ├── board/                # 게시판
+│   │   ├── controller/
+│   │   ├── service/
+│   │   ├── dto/
+│   │   └── repository/
+│   ├── post/                 # 게시글
+│   │   ├── controller/
+│   │   ├── service/
+│   │   ├── dto/
+│   │   └── repository/
+│   ├── comment/
+│   ├── token/
+│   └── terms/
 └── global/
-    ├── config/         # Spring configurations
-    ├── jwt/            # JWT utilities & filters
-    ├── exception/      # Global error handling
-    └── jpa/            # BaseTimeEntity
+    ├── config/               # Security, CORS, RestClient
+    ├── jwt/                  # JWT 파싱, 생성, 필터
+    ├── security/oauth2/      # OAuth2 핸들러
+    ├── exception/            # 예외 처리
+    └── jpa/                  # BaseTimeEntity
 ```
 
-## Key Components
+## Entity Relationships
 
-### Authentication Flow
-1. **Local Login**: Email/password -> JWT tokens issued
-2. **OAuth2 Login**: Provider redirect -> User profile -> JWT tokens
-3. **Token Refresh**: Refresh token -> New access/refresh tokens
-
-### Security
-- JWT access token (short-lived)
-- Refresh token stored in database
-- `@CurrentUser` annotation for injecting logged-in user
-
-### Entity Relationships
 ```
-User
-├── Post (1:N)
-├── Comment (1:N)
-├── RefreshToken (1:1)
-└── UserTerms (1:N)
-
-Post
-└── Comment (1:N)
-
-Terms
-└── TermsHistory (1:N)
+Board (1) ─── (N) Post (1) ─── (N) Comment
+                    │
+User (1) ──────────(N)
 ```
 
 ## Configuration
 
-### application.yml (development)
+### Profiles
+
+| Profile | 용도 | 설정 파일 |
+|---------|-----|----------|
+| local | 로컬 개발 | application-local.yml |
+| prod | 프로덕션/Docker | application-prod.yml |
+
+### application.yml (공통)
+```yaml
+spring:
+  profiles:
+    active: local
+  jpa:
+    hibernate:
+      ddl-auto: none
+```
+
+### application-local.yml
 ```yaml
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/wongoo3
-    username: root
-    password: password
-  jpa:
-    hibernate:
-      ddl-auto: update
-```
-
-### application-test.yml (testing)
-```yaml
-spring:
-  datasource:
-    url: jdbc:h2:mem:testdb
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
+app:
+  frontend-url: http://localhost:5173
 ```
 
 ## Commands
 
 ```bash
-# Build
-./gradlew build
-
-# Run tests
-./gradlew test
-
-# Start server
-./gradlew bootRun
-
-# Clean build
-./gradlew clean build
+./gradlew bootRun          # 서버 실행
+./gradlew build            # 빌드
+./gradlew test             # 테스트
 ```
+
+## Docker
+
+```bash
+docker-compose up -d --build
+```
+
+`SPRING_PROFILES_ACTIVE=local` 환경변수로 프로필 선택
