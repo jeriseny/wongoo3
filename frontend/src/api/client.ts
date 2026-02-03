@@ -10,6 +10,7 @@ import type {
   PostListItem,
   CreatePostRequest,
   UpdatePostRequest,
+  PostSearchParams,
   Comment,
   CreateCommentRequest,
   Page,
@@ -95,8 +96,17 @@ export const boardApi = {
 
 // Post API
 export const postApi = {
-  getList: (page = 0, size = 10, boardSlug?: string) =>
-    api.get<Page<PostListItem>>('/post', { params: { page, size, boardSlug } }),
+  getList: (params: PostSearchParams = {}) =>
+    api.get<Page<PostListItem>>('/post', {
+      params: {
+        page: params.page ?? 0,
+        size: params.size ?? 10,
+        boardSlug: params.boardSlug,
+        searchType: params.searchType,
+        keyword: params.keyword,
+        sortBy: params.sortBy ?? 'LATEST',
+      },
+    }),
 
   getDetail: (postId: number) =>
     api.get<Post>(`/post/${postId}`),

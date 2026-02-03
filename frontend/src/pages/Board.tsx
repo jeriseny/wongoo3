@@ -4,9 +4,10 @@ import { postApi, boardApi } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import PostCard from '../components/PostCard';
 import Pagination from '../components/Pagination';
+import SearchBar from '../components/SearchBar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorAlert from '../components/common/ErrorAlert';
-import type { PostListItem, Page, Board } from '../types';
+import type { PostListItem, Page, Board, SearchType, SortType } from '../types';
 
 export default function BoardPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,6 +19,11 @@ export default function BoardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // 검색 상태
+  const [searchType, setSearchType] = useState<SearchType>('TITLE');
+  const [keyword, setKeyword] = useState('');
+  const [sortBy, setSortBy] = useState<SortType>('LATEST');
+
   const currentBoard = boards.find((b) => b.slug === slug);
 
   useEffect(() => {
@@ -27,7 +33,14 @@ export default function BoardPage() {
   const fetchPosts = async (page: number) => {
     setIsLoading(true);
     try {
-      const response = await postApi.getList(page, 10, slug);
+      const response = await postApi.getList({
+        page,
+        size: 10,
+        boardSlug: slug,
+        searchType: keyword ? searchType : undefined,
+        keyword: keyword || undefined,
+        sortBy,
+      });
       setPosts(response.data);
       setError('');
     } catch {
@@ -37,17 +50,29 @@ export default function BoardPage() {
     }
   };
 
+  // 게시판 변경 시 페이지 초기화
   useEffect(() => {
     setCurrentPage(0);
   }, [slug]);
 
+  // 페이지/게시판/정렬 변경 시 게시글 로드
   useEffect(() => {
     fetchPosts(currentPage);
-  }, [currentPage, slug]);
+  }, [currentPage, slug, sortBy]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(0);
+    fetchPosts(0);
+  };
+
+  const handleSortChange = (newSort: SortType) => {
+    setSortBy(newSort);
+    setCurrentPage(0);
   };
 
   return (
@@ -98,6 +123,25 @@ export default function BoardPage() {
         ))}
       </div>
 
+      {/* Search Bar */}
+      <SearchBar
+        searchType={searchType}
+        keyword={keyword}
+        sortBy={sortBy}
+        onSearchTypeChange={setSearchType}
+        onKeywordChange={setKeyword}
+        onSortChange={handleSortChange}
+        onSearch={handleSearch}
+      />
+
+      {/* 검색 결과 표시 */}
+      {keyword && posts && (
+        <div className="mb-4 text-gray-600">
+          <span className="font-medium">"{keyword}"</span> 검색 결과
+          <span className="ml-2">({posts.totalElements}건)</span>
+        </div>
+      )}
+
       <ErrorAlert message={error} className="mb-6" />
 
       {isLoading ? (
@@ -118,12 +162,16 @@ export default function BoardPage() {
         </>
       ) : (
         <div className="text-center py-20">
-          <div className="text-gray-400 text-6xl mb-4">📝</div>
+          <div className="text-gray-400 text-6xl mb-4">
+            {keyword ? '🔍' : '📝'}
+          </div>
           <h2 className="text-xl font-medium text-gray-600 mb-2">
-            아직 게시글이 없습니다
+            {keyword ? '검색 결과가 없습니다' : '아직 게시글이 없습니다'}
           </h2>
-          <p className="text-gray-500">첫 번째 글을 작성해보세요!</p>
-          {isAuthenticated && (
+          <p className="text-gray-500">
+            {keyword ? '다른 검색어로 시도해보세요' : '첫 번째 글을 작성해보세요!'}
+          </p>
+          {!keyword && isAuthenticated && (
             <Link
               to={slug ? `/post/write?board=${slug}` : '/post/write'}
               className="inline-block mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"

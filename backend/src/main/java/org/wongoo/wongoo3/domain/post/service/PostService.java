@@ -12,6 +12,7 @@ import org.wongoo.wongoo3.domain.post.Post;
 import org.wongoo.wongoo3.domain.post.dto.CreatePostRequest;
 import org.wongoo.wongoo3.domain.post.dto.PostListResponse;
 import org.wongoo.wongoo3.domain.post.dto.PostResponse;
+import org.wongoo.wongoo3.domain.post.dto.PostSearchRequest;
 import org.wongoo.wongoo3.domain.post.dto.UpdatePostRequest;
 import org.wongoo.wongoo3.domain.post.repository.PostRepository;
 import org.wongoo.wongoo3.domain.user.User;
@@ -59,6 +60,12 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<PostListResponse> getPostListByBoard(String boardSlug, Pageable pageable) {
         return postRepository.findByBoardSlugOrderByCreatedAtDesc(boardSlug, pageable)
+                .map(PostListResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
+        return postRepository.search(request, pageable)
                 .map(PostListResponse::from);
     }
 

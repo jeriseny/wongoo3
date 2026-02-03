@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.wongoo.wongoo3.domain.post.Post;
 
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
 
     @EntityGraph(attributePaths = {"author", "board"})
     Page<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);

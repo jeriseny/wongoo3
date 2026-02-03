@@ -81,6 +81,19 @@ export interface UpdatePostRequest {
   content: string;
 }
 
+// Search Types
+export type SearchType = 'TITLE' | 'CONTENT' | 'TITLE_CONTENT' | 'AUTHOR';
+export type SortType = 'LATEST' | 'VIEW_COUNT';
+
+export interface PostSearchParams {
+  page?: number;
+  size?: number;
+  boardSlug?: string;
+  searchType?: SearchType;
+  keyword?: string;
+  sortBy?: SortType;
+}
+
 // Comment Types
 export interface Comment {
   id: number;

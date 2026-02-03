@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.wongoo.wongoo3.domain.post.dto.CreatePostRequest;
 import org.wongoo.wongoo3.domain.post.dto.PostListResponse;
 import org.wongoo.wongoo3.domain.post.dto.PostResponse;
+import org.wongoo.wongoo3.domain.post.dto.PostSearchRequest;
+import org.wongoo.wongoo3.domain.post.dto.SearchType;
+import org.wongoo.wongoo3.domain.post.dto.SortType;
 import org.wongoo.wongoo3.domain.post.dto.UpdatePostRequest;
 import org.wongoo.wongoo3.domain.post.service.PostService;
 import org.wongoo.wongoo3.domain.user.dto.LoginUser;
@@ -40,16 +43,17 @@ public class PostController {
     }
 
     @GetMapping
-    @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 페이징하여 조회합니다")
+    @Operation(summary = "게시글 목록/검색", description = "게시글 목록을 검색/필터링하여 조회합니다")
     public ResponseEntity<Page<PostListResponse>> getPostList(
             @RequestParam(required = false) String boardSlug,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) SearchType searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "LATEST") SortType sortBy) {
         Pageable pageable = PageRequest.of(page, size);
-        if (boardSlug != null && !boardSlug.isEmpty()) {
-            return ResponseEntity.ok(postService.getPostListByBoard(boardSlug, pageable));
-        }
-        return ResponseEntity.ok(postService.getPostList(pageable));
+        PostSearchRequest request = new PostSearchRequest(boardSlug, searchType, keyword, sortBy);
+        return ResponseEntity.ok(postService.searchPosts(request, pageable));
     }
 
     @PatchMapping("/{postId}")

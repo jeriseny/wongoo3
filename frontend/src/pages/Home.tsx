@@ -15,14 +15,13 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [postsRes, statsRes] = await Promise.all([
-          postApi.getList(0, 5),
+        const [recentRes, popularRes, statsRes] = await Promise.all([
+          postApi.getList({ page: 0, size: 5, sortBy: 'LATEST' }),
+          postApi.getList({ page: 0, size: 3, sortBy: 'VIEW_COUNT' }),
           statsApi.get(),
         ]);
-        setRecentPosts(postsRes.data.content);
-        // 조회수 기준 정렬 (인기 게시글)
-        const sorted = [...postsRes.data.content].sort((a, b) => b.viewCount - a.viewCount);
-        setPopularPosts(sorted.slice(0, 3));
+        setRecentPosts(recentRes.data.content);
+        setPopularPosts(popularRes.data.content);
         setStats(statsRes.data);
       } catch (err) {
         console.error('데이터 로딩 실패:', err);
