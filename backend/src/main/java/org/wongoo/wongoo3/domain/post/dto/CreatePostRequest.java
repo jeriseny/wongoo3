@@ -13,5 +13,9 @@ public record CreatePostRequest(
 
         @NotBlank
         @Schema(description = "게시글 내용", example = "게시글 내용입니다.")
-        String content
+        String content,
+
+        @NotBlank
+        @Schema(description = "게시판 슬러그", example = "free")
+        String boardSlug
 ) {}

@@ -37,6 +37,14 @@ export interface UserInfo {
   createdAt: string;
 }
 
+// Board Types
+export interface Board {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+}
+
 // Post Types
 export interface Post {
   id: number;
@@ -45,6 +53,9 @@ export interface Post {
   authorId: number;
   authorNickname: string;
   viewCount: number;
+  boardId: number;
+  boardName: string;
+  boardSlug: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,12 +65,15 @@ export interface PostListItem {
   title: string;
   authorNickname: string;
   viewCount: number;
+  boardSlug: string;
+  boardName: string;
   createdAt: string;
 }
 
 export interface CreatePostRequest {
   title: string;
   content: string;
+  boardSlug: string;
 }
 
 export interface UpdatePostRequest {

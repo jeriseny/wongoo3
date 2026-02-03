@@ -79,17 +79,37 @@ CREATE TABLE WK_REFRESH_TOKEN (
     CONSTRAINT fk_refresh_token_user FOREIGN KEY (user_id) REFERENCES WK_USER (id)
 );
 
+DROP TABLE IF EXISTS WK_BOARD;
+CREATE TABLE WK_BOARD (
+    id                              BIGINT AUTO_INCREMENT       PRIMARY KEY,
+    name                            VARCHAR(100)                NOT NULL,
+    slug                            VARCHAR(50)                 NOT NULL,
+    description                     VARCHAR(500)                NULL,
+    display_order                   INT                         NOT NULL DEFAULT 0,
+    is_active                       BOOLEAN                     NOT NULL DEFAULT TRUE,
+    created_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX ux_wk_board_slug ON WK_BOARD (slug);
+
+INSERT INTO WK_BOARD (name, slug, description, display_order) VALUES
+('공지사항', 'notice', '공지사항입니다', 0),
+('자유게시판', 'free', '자유롭게 글을 작성하세요', 1),
+('QnA', 'qna', '질문과 답변', 2);
+
 DROP TABLE IF EXISTS WK_POST;
 CREATE TABLE WK_POST (
     id                              BIGINT AUTO_INCREMENT       PRIMARY KEY,
     title                           VARCHAR(200)                NOT NULL,
     content                         TEXT                        NOT NULL,
     author_id                       BIGINT                      NOT NULL,
+    board_id                        BIGINT                      NOT NULL,
     view_count                      BIGINT                      NOT NULL DEFAULT 0,
     created_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_post_author FOREIGN KEY (author_id) REFERENCES WK_USER (id)
+    CONSTRAINT fk_post_author FOREIGN KEY (author_id) REFERENCES WK_USER (id),
+    CONSTRAINT fk_post_board  FOREIGN KEY (board_id)  REFERENCES WK_BOARD (id)
 );
 
 DROP TABLE IF EXISTS WK_COMMENT;

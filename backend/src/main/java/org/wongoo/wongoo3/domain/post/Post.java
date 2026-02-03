@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.wongoo.wongoo3.domain.board.Board;
 import org.wongoo.wongoo3.domain.user.User;
 import org.wongoo.wongoo3.global.jpa.BaseTimeEntity;
 
@@ -27,14 +28,19 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", nullable = false)
+    private Board board;
+
     @Column(name = "view_count", nullable = false)
     private Long viewCount = 0L;
 
-    public static Post create(String title, String content, User author) {
+    public static Post create(String title, String content, User author, Board board) {
         Post post = new Post();
         post.title = title;
         post.content = content;
         post.author = author;
+        post.board = board;
         post.viewCount = 0L;
         return post;
     }

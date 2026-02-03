@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/user/signup", "/api/user/signup/social", "/api/auth/**", "/api/oauth2/**").permitAll()
                         .requestMatchers("/api/stats").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/board/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/post/**").permitAll()
                         .anyRequest().authenticated()
                 )

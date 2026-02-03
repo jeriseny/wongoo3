@@ -5,6 +5,7 @@ import type {
   SignupRequest,
   WkToken,
   UserInfo,
+  Board,
   Post,
   PostListItem,
   CreatePostRequest,
@@ -83,10 +84,19 @@ export const userApi = {
     }),
 };
 
+// Board API
+export const boardApi = {
+  getList: () =>
+    api.get<Board[]>('/board'),
+
+  getBySlug: (slug: string) =>
+    api.get<Board>(`/board/${slug}`),
+};
+
 // Post API
 export const postApi = {
-  getList: (page = 0, size = 10) =>
-    api.get<Page<PostListItem>>('/post', { params: { page, size } }),
+  getList: (page = 0, size = 10, boardSlug?: string) =>
+    api.get<Page<PostListItem>>('/post', { params: { page, size, boardSlug } }),
 
   getDetail: (postId: number) =>
     api.get<Post>(`/post/${postId}`),

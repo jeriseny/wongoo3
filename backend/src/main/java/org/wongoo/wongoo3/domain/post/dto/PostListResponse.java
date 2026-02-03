@@ -11,6 +11,8 @@ public record PostListResponse(
         String title,
         String authorNickname,
         Long viewCount,
+        String boardSlug,
+        String boardName,
         LocalDateTime createdAt
 ) {
     public static PostListResponse from(Post post) {
@@ -19,6 +21,8 @@ public record PostListResponse(
                 post.getTitle(),
                 post.getAuthor().getNickname(),
                 post.getViewCount(),
+                post.getBoard().getSlug(),
+                post.getBoard().getName(),
                 post.getCreatedAt()
         );
     }

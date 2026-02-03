@@ -13,6 +13,9 @@ public record PostResponse(
         Long authorId,
         String authorNickname,
         Long viewCount,
+        Long boardId,
+        String boardName,
+        String boardSlug,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -24,6 +27,9 @@ public record PostResponse(
                 post.getAuthor().getId(),
                 post.getAuthor().getNickname(),
                 post.getViewCount(),
+                post.getBoard().getId(),
+                post.getBoard().getName(),
+                post.getBoard().getSlug(),
                 post.getCreatedAt(),
                 post.getUpdatedAt()
         );

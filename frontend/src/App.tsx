@@ -34,8 +34,9 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           {/* Public routes */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Board />} />
           <Route path="/board" element={<Board />} />
+          <Route path="/board/:slug" element={<Board />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/oauth/callback" element={<OAuthCallback />} />

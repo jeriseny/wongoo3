@@ -1,18 +1,36 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { postApi } from '../api/client';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { postApi, boardApi } from '../api/client';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { getErrorMessage } from '../utils/errorMessage';
+import type { Board } from '../types';
 
 export default function PostWrite() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const isEdit = Boolean(id);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [boardSlug, setBoardSlug] = useState(searchParams.get('board') || '');
+  const [boards, setBoards] = useState<Board[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(isEdit);
+  const [isFetching, setIsFetching] = useState(true);
+
+  useEffect(() => {
+    boardApi
+      .getList()
+      .then((res) => {
+        setBoards(res.data);
+        if (!boardSlug && res.data.length > 0) {
+          setBoardSlug(res.data[0].slug);
+        }
+      })
+      .finally(() => {
+        if (!isEdit) setIsFetching(false);
+      });
+  }, []);
 
   useEffect(() => {
     if (isEdit && id) {
@@ -22,6 +40,7 @@ export default function PostWrite() {
         .then((response) => {
           setTitle(response.data.title);
           setContent(response.data.content);
+          setBoardSlug(response.data.boardSlug);
         })
         .catch((err) => {
           alert(getErrorMessage(err, '게시글을 찾을 수 없습니다.'));
@@ -39,6 +58,11 @@ export default function PostWrite() {
       return;
     }
 
+    if (!boardSlug) {
+      alert('게시판을 선택해주세요.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -47,7 +71,7 @@ export default function PostWrite() {
         alert('게시글이 수정되었습니다.');
         navigate(`/post/${id}`);
       } else {
-        const response = await postApi.create({ title, content });
+        const response = await postApi.create({ title, content, boardSlug });
         alert('게시글이 작성되었습니다.');
         navigate(`/post/${response.data.id}`);
       }
@@ -69,6 +93,26 @@ export default function PostWrite() {
       </h1>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        {!isEdit && (
+          <div className="mb-6">
+            <label htmlFor="board" className="block text-sm font-medium text-gray-700 mb-2">
+              게시판
+            </label>
+            <select
+              id="board"
+              value={boardSlug}
+              onChange={(e) => setBoardSlug(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              {boards.map((board) => (
+                <option key={board.id} value={board.slug}>
+                  {board.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="mb-6">
           <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
             제목

@@ -1,24 +1,33 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { postApi } from '../api/client';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { postApi, boardApi } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import PostCard from '../components/PostCard';
 import Pagination from '../components/Pagination';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorAlert from '../components/common/ErrorAlert';
-import type { PostListItem, Page } from '../types';
+import type { PostListItem, Page, Board } from '../types';
 
-export default function Home() {
+export default function BoardPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+  const [boards, setBoards] = useState<Board[]>([]);
   const [posts, setPosts] = useState<Page<PostListItem> | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const currentBoard = boards.find((b) => b.slug === slug);
+
+  useEffect(() => {
+    boardApi.getList().then((res) => setBoards(res.data)).catch(() => {});
+  }, []);
+
   const fetchPosts = async (page: number) => {
     setIsLoading(true);
     try {
-      const response = await postApi.getList(page, 10);
+      const response = await postApi.getList(page, 10, slug);
       setPosts(response.data);
       setError('');
     } catch {
@@ -29,8 +38,12 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setCurrentPage(0);
+  }, [slug]);
+
+  useEffect(() => {
     fetchPosts(currentPage);
-  }, [currentPage]);
+  }, [currentPage, slug]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -39,19 +52,50 @@ export default function Home() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">게시판</h1>
-          <p className="text-gray-600 mt-1">자유롭게 글을 작성하고 소통해보세요</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {currentBoard?.name || '전체 게시판'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {currentBoard?.description || '모든 게시글을 확인하세요'}
+          </p>
         </div>
         {isAuthenticated && (
           <Link
-            to="/post/write"
+            to={slug ? `/post/write?board=${slug}` : '/post/write'}
             className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition shadow-sm"
           >
             새 글 작성
           </Link>
         )}
+      </div>
+
+      {/* Board Tabs */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <button
+          onClick={() => navigate('/board')}
+          className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
+            !slug
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          전체
+        </button>
+        {boards.map((board) => (
+          <button
+            key={board.id}
+            onClick={() => navigate(`/board/${board.slug}`)}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
+              slug === board.slug
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {board.name}
+          </button>
+        ))}
       </div>
 
       <ErrorAlert message={error} className="mb-6" />
@@ -81,7 +125,7 @@ export default function Home() {
           <p className="text-gray-500">첫 번째 글을 작성해보세요!</p>
           {isAuthenticated && (
             <Link
-              to="/post/write"
+              to={slug ? `/post/write?board=${slug}` : '/post/write'}
               className="inline-block mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
             >
               글 작성하기

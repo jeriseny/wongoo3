@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.wongoo.wongoo3.domain.board.Board;
+import org.wongoo.wongoo3.domain.board.service.BoardService;
 import org.wongoo.wongoo3.domain.comment.repository.CommentRepository;
 import org.wongoo.wongoo3.domain.post.Post;
 import org.wongoo.wongoo3.domain.post.dto.CreatePostRequest;
@@ -23,12 +25,14 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserService userService;
+    private final BoardService boardService;
     private final CommentRepository commentRepository;
 
     @Transactional
     public PostResponse createPost(Long userId, CreatePostRequest request) {
         User author = userService.getUserById(userId);
-        Post post = Post.create(request.title(), request.content(), author);
+        Board board = boardService.findBySlug(request.boardSlug());
+        Post post = Post.create(request.title(), request.content(), author, board);
         postRepository.save(post);
         return PostResponse.from(post);
     }
@@ -49,6 +53,12 @@ public class PostService {
     @Transactional(readOnly = true)
     public Page<PostListResponse> getPostList(Pageable pageable) {
         return postRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(PostListResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> getPostListByBoard(String boardSlug, Pageable pageable) {
+        return postRepository.findByBoardSlugOrderByCreatedAtDesc(boardSlug, pageable)
                 .map(PostListResponse::from);
     }
 

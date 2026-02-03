@@ -42,9 +42,13 @@ public class PostController {
     @GetMapping
     @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 페이징하여 조회합니다")
     public ResponseEntity<Page<PostListResponse>> getPostList(
+            @RequestParam(required = false) String boardSlug,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
+        if (boardSlug != null && !boardSlug.isEmpty()) {
+            return ResponseEntity.ok(postService.getPostListByBoard(boardSlug, pageable));
+        }
         return ResponseEntity.ok(postService.getPostList(pageable));
     }
 

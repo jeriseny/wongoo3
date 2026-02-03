@@ -8,8 +8,11 @@ import org.wongoo.wongoo3.domain.post.Post;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @EntityGraph(attributePaths = {"author"})
+    @EntityGraph(attributePaths = {"author", "board"})
     Page<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"author", "board"})
+    Page<Post> findByBoardSlugOrderByCreatedAtDesc(String boardSlug, Pageable pageable);
 
     Page<Post> findByTitleContainingOrderByCreatedAtDesc(String keyword, Pageable pageable);
 
