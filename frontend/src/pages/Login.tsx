@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import ErrorAlert from '../components/common/ErrorAlert';
 import OAuthButtons from '../components/common/OAuthButtons';
+import { getErrorMessage } from '../utils/errorMessage';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -22,8 +23,7 @@ export default function Login() {
       await login({ email, password, rememberMe: false });
       navigate('/');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : '로그인에 실패했습니다.';
-      setError(message);
+      setError(getErrorMessage(err, '로그인에 실패했습니다.'));
     } finally {
       setIsLoading(false);
     }

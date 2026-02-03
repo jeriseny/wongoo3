@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { userApi } from '../api/client';
 import { formatDate } from '../utils/formatDate';
+import { getErrorMessage } from '../utils/errorMessage';
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -29,8 +30,8 @@ export default function MyPage() {
       await fetchUser();
       setIsEditingInfo(false);
       alert('정보가 수정되었습니다.');
-    } catch {
-      alert('정보 수정에 실패했습니다.');
+    } catch (err) {
+      alert(getErrorMessage(err, '정보 수정에 실패했습니다.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -53,8 +54,8 @@ export default function MyPage() {
       setNewPassword('');
       setNewPasswordConfirm('');
       alert('비밀번호가 변경되었습니다.');
-    } catch {
-      alert('비밀번호 변경에 실패했습니다. 현재 비밀번호를 확인해주세요.');
+    } catch (err) {
+      alert(getErrorMessage(err, '비밀번호 변경에 실패했습니다.'));
     } finally {
       setIsSubmitting(false);
     }

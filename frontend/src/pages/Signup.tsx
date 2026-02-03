@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import ErrorAlert from '../components/common/ErrorAlert';
 import OAuthButtons from '../components/common/OAuthButtons';
+import { getErrorMessage } from '../utils/errorMessage';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -59,8 +60,7 @@ export default function Signup() {
       alert('회원가입이 완료되었습니다. 로그인해주세요.');
       navigate('/login');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : '회원가입에 실패했습니다.';
-      setError(message);
+      setError(getErrorMessage(err, '회원가입에 실패했습니다.'));
     } finally {
       setIsLoading(false);
     }

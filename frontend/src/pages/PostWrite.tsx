@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { postApi } from '../api/client';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { getErrorMessage } from '../utils/errorMessage';
 
 export default function PostWrite() {
   const navigate = useNavigate();
@@ -22,8 +23,8 @@ export default function PostWrite() {
           setTitle(response.data.title);
           setContent(response.data.content);
         })
-        .catch(() => {
-          alert('게시글을 찾을 수 없습니다.');
+        .catch((err) => {
+          alert(getErrorMessage(err, '게시글을 찾을 수 없습니다.'));
           navigate('/');
         })
         .finally(() => setIsFetching(false));
@@ -50,8 +51,8 @@ export default function PostWrite() {
         alert('게시글이 작성되었습니다.');
         navigate(`/post/${response.data.id}`);
       }
-    } catch {
-      alert(isEdit ? '수정에 실패했습니다.' : '작성에 실패했습니다.');
+    } catch (err) {
+      alert(getErrorMessage(err, isEdit ? '수정에 실패했습니다.' : '작성에 실패했습니다.'));
     } finally {
       setIsLoading(false);
     }

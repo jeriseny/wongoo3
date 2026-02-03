@@ -3,6 +3,7 @@ import type { Comment } from '../types';
 import { useAuthStore } from '../stores/authStore';
 import { commentApi } from '../api/client';
 import { formatDate } from '../utils/formatDate';
+import { getErrorMessage } from '../utils/errorMessage';
 
 interface Props {
   comment: Comment;
@@ -25,8 +26,8 @@ export default function CommentItem({ comment, onUpdate, onDelete }: Props) {
       await commentApi.update(comment.id, { content: editContent });
       setIsEditing(false);
       onUpdate();
-    } catch {
-      alert('댓글 수정에 실패했습니다.');
+    } catch (err) {
+      alert(getErrorMessage(err, '댓글 수정에 실패했습니다.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -37,8 +38,8 @@ export default function CommentItem({ comment, onUpdate, onDelete }: Props) {
     try {
       await commentApi.delete(comment.id);
       onDelete();
-    } catch {
-      alert('댓글 삭제에 실패했습니다.');
+    } catch (err) {
+      alert(getErrorMessage(err, '댓글 삭제에 실패했습니다.'));
     }
   };
 

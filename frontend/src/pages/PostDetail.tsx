@@ -6,6 +6,7 @@ import CommentItem from '../components/CommentItem';
 import Pagination from '../components/Pagination';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { formatDateTime } from '../utils/formatDate';
+import { getErrorMessage } from '../utils/errorMessage';
 import type { Post, Comment, Page } from '../types';
 
 export default function PostDetail() {
@@ -27,8 +28,8 @@ export default function PostDetail() {
     try {
       const response = await postApi.getDetail(postId);
       setPost(response.data);
-    } catch {
-      alert('게시글을 찾을 수 없습니다.');
+    } catch (err) {
+      alert(getErrorMessage(err, '게시글을 찾을 수 없습니다.'));
       navigate('/');
     }
   }, [postId, navigate]);
@@ -53,8 +54,8 @@ export default function PostDetail() {
       await postApi.delete(postId);
       alert('게시글이 삭제되었습니다.');
       navigate('/');
-    } catch {
-      alert('삭제에 실패했습니다.');
+    } catch (err) {
+      alert(getErrorMessage(err, '삭제에 실패했습니다.'));
     }
   };
 
@@ -68,8 +69,8 @@ export default function PostDetail() {
       setNewComment('');
       fetchComments(0);
       setCommentPage(0);
-    } catch {
-      alert('댓글 작성에 실패했습니다.');
+    } catch (err) {
+      alert(getErrorMessage(err, '댓글 작성에 실패했습니다.'));
     } finally {
       setIsSubmitting(false);
     }
