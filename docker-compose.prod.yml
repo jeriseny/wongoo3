@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: ./backend
+    container_name: wongoo3-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/wongoo3?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=15730254791!a
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - FRONTEND_URL=http://localhost
+    networks:
+      - wongoo3-network
+
+  frontend:
+    build: ./frontend
+    container_name: wongoo3-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - wongoo3-network
+
+networks:
+  wongoo3-network:
+    driver: bridge
