@@ -5,6 +5,7 @@ import { useAuthStore } from './stores/authStore';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import Home from './pages/Home';
 import Board from './pages/Board';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -33,7 +34,7 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           {/* Public routes */}
-          <Route path="/" element={<Board />} />
+          <Route path="/" element={<Home />} />
           <Route path="/board" element={<Board />} />
           <Route path="/board/:slug" element={<Board />} />
           <Route path="/login" element={<Login />} />

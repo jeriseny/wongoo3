@@ -9,7 +9,7 @@ export default function Header() {
       <div className="max-w-5xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="text-2xl font-bold text-blue-600">
-            Wongoo Board
+            Wongoo V2
           </Link>
 
           <nav className="flex items-center gap-4">
