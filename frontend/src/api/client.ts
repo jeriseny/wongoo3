@@ -15,6 +15,7 @@ import type {
   CreateCommentRequest,
   Page,
   Stats,
+  LikeResponse,
 } from '../types';
 
 const api = axios.create({
@@ -120,6 +121,12 @@ export const postApi = {
 
   delete: (postId: number) =>
     api.delete(`/post/${postId}`),
+
+  getLikeStatus: (postId: number) =>
+    api.get<LikeResponse>(`/post/${postId}/like`),
+
+  toggleLike: (postId: number) =>
+    api.post<LikeResponse>(`/post/${postId}/like`),
 };
 
 // Comment API

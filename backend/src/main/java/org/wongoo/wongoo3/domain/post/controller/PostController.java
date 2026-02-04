@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.wongoo.wongoo3.domain.post.dto.CreatePostRequest;
+import org.wongoo.wongoo3.domain.post.dto.LikeResponse;
 import org.wongoo.wongoo3.domain.post.dto.PostListResponse;
 import org.wongoo.wongoo3.domain.post.dto.PostResponse;
 import org.wongoo.wongoo3.domain.post.dto.PostSearchRequest;
@@ -72,5 +73,22 @@ public class PostController {
             @PathVariable Long postId) {
         postService.deletePost(postId, loginUser.userId());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{postId}/like")
+    @Operation(summary = "좋아요 토글", description = "게시글 좋아요를 토글합니다 (좋아요/취소)")
+    public ResponseEntity<LikeResponse> toggleLike(
+            @CurrentUser LoginUser loginUser,
+            @PathVariable Long postId) {
+        return ResponseEntity.ok(postService.toggleLike(postId, loginUser.userId()));
+    }
+
+    @GetMapping("/{postId}/like")
+    @Operation(summary = "좋아요 상태 조회", description = "게시글의 좋아요 수와 현재 사용자의 좋아요 여부를 조회합니다")
+    public ResponseEntity<LikeResponse> getLikeStatus(
+            @CurrentUser(required = false) LoginUser loginUser,
+            @PathVariable Long postId) {
+        Long userId = loginUser != null ? loginUser.userId() : null;
+        return ResponseEntity.ok(postService.getLikeStatus(postId, userId));
     }
 }

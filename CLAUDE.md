@@ -1,78 +1,42 @@
-# CLAUDE.md
+# wongoo3
 
-## Project Overview
+커뮤니티 게시판 (Spring Boot 3.4 + React 19)
 
-커뮤니티 게시판 애플리케이션 (Spring Boot + React)
-
-```
-wongoo3/
-├── backend/     # Spring Boot 3.4 / Java 21
-├── frontend/    # React 19 + TypeScript + Tailwind
-└── docs/        # 상세 문서
-```
-
-## Quick Commands
+## 실행
 
 ```bash
-# Backend
-cd backend && ./gradlew bootRun
-
-# Frontend
-cd frontend && npm run dev
-
-# Docker (local)
-docker-compose up -d --build
+cd backend && ./gradlew bootRun   # :8080
+cd frontend && npm run dev        # :5173
 ```
 
-## Backend Structure
+## 구조
 
 ```
-org.wongoo.wongoo3/
-├── domain/
-│   ├── auth/        # 인증, OAuth2
-│   ├── user/        # 사용자
-│   ├── board/       # 게시판
-│   ├── post/        # 게시글
-│   ├── comment/     # 댓글
-│   ├── token/       # JWT 토큰
-│   └── terms/       # 약관
-└── global/
-    ├── config/      # 설정
-    ├── jwt/         # JWT 유틸
-    ├── security/    # OAuth2 핸들러
-    └── exception/   # 예외 처리
+backend/   → Java 21, Spring Security, JPA, MySQL
+frontend/  → TypeScript, Tailwind, Zustand, Axios
 ```
 
-## Frontend Structure
+## 주요 도메인
 
-```
-frontend/src/
-├── api/           # API 클라이언트
-├── components/    # 컴포넌트
-├── pages/         # 페이지
-├── stores/        # Zustand 스토어
-├── utils/         # 유틸리티
-└── types/         # TypeScript 타입
-```
+| 도메인 | 설명 |
+|--------|------|
+| auth | 로그인, OAuth2 (Naver) |
+| user | 회원가입, 정보수정 |
+| board | 게시판 (notice, free, qna) |
+| post | 게시글 CRUD, 좋아요 |
+| comment | 댓글 CRUD |
 
-## Key API Endpoints
+## API
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/board` | 게시판 목록 |
-| GET | `/api/post?boardSlug=free` | 게시글 목록 (게시판별) |
-| POST | `/api/post` | 게시글 작성 |
-| GET | `/api/post/{id}` | 게시글 상세 |
-| POST | `/api/auth/login/local` | 로그인 |
-| GET | `/api/oauth2/authorization/naver` | 네이버 OAuth |
+| Endpoint | 설명 |
+|----------|------|
+| `GET /api/post?boardSlug=free` | 게시글 목록 |
+| `POST /api/post` | 게시글 작성 |
+| `POST /api/post/{id}/like` | 좋아요 토글 |
+| `POST /api/auth/login/local` | 로그인 |
 
-## Profiles
+## 참고
 
-- `local`: 로컬 개발 (기본값)
-- `prod`: 프로덕션/Docker
-
-## Documentation
-
-- [docs/api.md](docs/api.md) - API 레퍼런스
-- [docs/backend.md](docs/backend.md) - 백엔드 구조
-- [docs/frontend.md](docs/frontend.md) - 프론트엔드 구조
+- [docs/api.md](docs/api.md) - API 명세
+- [docs/backend.md](docs/backend.md) - 백엔드
+- [docs/frontend.md](docs/frontend.md) - 프론트엔드

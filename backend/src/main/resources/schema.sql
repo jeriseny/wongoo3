@@ -125,4 +125,15 @@ CREATE TABLE WK_COMMENT (
     CONSTRAINT fk_comment_post   FOREIGN KEY (post_id)   REFERENCES WK_POST (id)
 );
 
+DROP TABLE IF EXISTS WK_POST_LIKE;
+CREATE TABLE WK_POST_LIKE (
+    id                              BIGINT AUTO_INCREMENT       PRIMARY KEY,
+    post_id                         BIGINT                      NOT NULL,
+    user_id                         BIGINT                      NOT NULL,
+    created_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                      TIMESTAMP                   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+    CONSTRAINT uk_post_like UNIQUE (post_id, user_id),
+    CONSTRAINT fk_post_like_post FOREIGN KEY (post_id) REFERENCES WK_POST (id),
+    CONSTRAINT fk_post_like_user FOREIGN KEY (user_id) REFERENCES WK_USER (id)
+);

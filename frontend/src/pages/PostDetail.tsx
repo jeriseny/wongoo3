@@ -7,7 +7,7 @@ import Pagination from '../components/Pagination';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { formatDateTime } from '../utils/formatDate';
 import { getErrorMessage } from '../utils/errorMessage';
-import type { Post, Comment, Page } from '../types';
+import type { Post, Comment, Page, LikeResponse } from '../types';
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +20,8 @@ export default function PostDetail() {
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [likeStatus, setLikeStatus] = useState<LikeResponse | null>(null);
+  const [isLiking, setIsLiking] = useState(false);
 
   const postId = Number(id);
   const isAuthor = user && post && user.nickName === post.authorNickname;
@@ -43,6 +45,33 @@ export default function PostDetail() {
     }
   }, [postId]);
 
+  const fetchLikeStatus = useCallback(async () => {
+    try {
+      const response = await postApi.getLikeStatus(postId);
+      setLikeStatus(response.data);
+    } catch {
+      console.error('Failed to fetch like status');
+    }
+  }, [postId]);
+
+  const handleToggleLike = async () => {
+    if (!isAuthenticated) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    if (isLiking) return;
+
+    setIsLiking(true);
+    try {
+      const response = await postApi.toggleLike(postId);
+      setLikeStatus(response.data);
+    } catch (err) {
+      alert(getErrorMessage(err, '좋아요 처리에 실패했습니다.'));
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
   // 댓글 수정/삭제 후 리로드 콜백 (메모이제이션으로 불필요한 리렌더 방지)
   const handleCommentChange = useCallback(() => {
     fetchComments(commentPage);
@@ -50,8 +79,8 @@ export default function PostDetail() {
 
   useEffect(() => {
     setIsLoading(true);
-    Promise.all([fetchPost(), fetchComments(0)]).finally(() => setIsLoading(false));
-  }, [fetchPost, fetchComments]);
+    Promise.all([fetchPost(), fetchComments(0), fetchLikeStatus()]).finally(() => setIsLoading(false));
+  }, [fetchPost, fetchComments, fetchLikeStatus]);
 
   const handleDelete = async () => {
     if (!confirm('게시글을 삭제하시겠습니까?')) return;
@@ -122,6 +151,32 @@ export default function PostDetail() {
           <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
             {post.content}
           </p>
+        </div>
+
+        {/* Like Button */}
+        <div className="mt-8 pt-6 border-t border-gray-200 flex justify-center">
+          <button
+            onClick={handleToggleLike}
+            disabled={isLiking}
+            className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition ${
+              likeStatus?.isLiked
+                ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            <svg
+              className={`w-5 h-5 ${likeStatus?.isLiked ? 'fill-red-500' : 'fill-none stroke-current'}`}
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+              />
+            </svg>
+            <span>좋아요 {likeStatus?.likeCount ?? 0}</span>
+          </button>
         </div>
       </article>
 

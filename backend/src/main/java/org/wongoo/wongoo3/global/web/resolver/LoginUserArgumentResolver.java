@@ -23,7 +23,15 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+
+        CurrentUser annotation = parameter.getParameterAnnotation(CurrentUser.class);
+        boolean required = annotation != null && annotation.required();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            if (required) {
+                throw new IllegalStateException("로그인이 필요합니다.");
+            }
             return null;
         }
         return authentication.getPrincipal();

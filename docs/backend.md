@@ -1,99 +1,51 @@
-# Backend Architecture
+# Backend
 
-## Tech Stack
+Java 21 + Spring Boot 3.4 + MySQL
 
-- Java 21 + Spring Boot 3.4
-- Spring Security + JWT + OAuth2
-- Spring Data JPA + MySQL
-- Gradle
-
-## Package Structure
+## Package
 
 ```
 org.wongoo.wongoo3/
 ├── domain/
-│   ├── auth/
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── dto/
-│   │   └── oauth2/
-│   │       ├── provider/     # OAuth2 프로바이더 (Naver)
-│   │       ├── dto/
-│   │       └── registry/
-│   ├── user/
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── dto/
-│   │   └── repository/
-│   ├── board/                # 게시판
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── dto/
-│   │   └── repository/
-│   ├── post/                 # 게시글
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── dto/
-│   │   └── repository/
-│   ├── comment/
-│   ├── token/
-│   └── terms/
+│   ├── auth/        # 인증, OAuth2
+│   ├── user/        # 사용자
+│   ├── board/       # 게시판
+│   ├── post/        # 게시글, 좋아요
+│   ├── comment/     # 댓글
+│   ├── token/       # RefreshToken
+│   └── terms/       # 약관
 └── global/
-    ├── config/               # Security, CORS, RestClient
-    ├── jwt/                  # JWT 파싱, 생성, 필터
-    ├── security/oauth2/      # OAuth2 핸들러
-    ├── exception/            # 예외 처리
-    └── jpa/                  # BaseTimeEntity
+    ├── config/      # Security, CORS
+    ├── jwt/         # JWT 처리
+    ├── security/    # OAuth2 핸들러
+    └── exception/   # 예외 처리
 ```
 
-## Entity Relationships
+## Entity
 
 ```
 Board (1) ─── (N) Post (1) ─── (N) Comment
-                    │
-User (1) ──────────(N)
+                   │
+User (1) ─────────(N)
+                   │
+              PostLike
 ```
 
-## Configuration
+## Tables
 
-### Profiles
+`WK_USER`, `WK_BOARD`, `WK_POST`, `WK_COMMENT`, `WK_POST_LIKE`, `WK_TERMS`, `WK_REFRESH_TOKEN`
 
-| Profile | 용도 | 설정 파일 |
-|---------|-----|----------|
-| local | 로컬 개발 | application-local.yml |
-| prod | 프로덕션/Docker | application-prod.yml |
+## Profile
 
-### application.yml (공통)
-```yaml
-spring:
-  profiles:
-    active: local
-  jpa:
-    hibernate:
-      ddl-auto: none
-```
-
-### application-local.yml
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/wongoo3
-app:
-  frontend-url: http://localhost:5173
-```
+| Profile | 용도 |
+|---------|-----|
+| local | 로컬 개발 (기본) |
+| prod | Docker/프로덕션 |
 
 ## Commands
 
 ```bash
-./gradlew bootRun          # 서버 실행
-./gradlew build            # 빌드
-./gradlew test             # 테스트
+./gradlew bootRun    # 실행
+./gradlew build      # 빌드
+./gradlew test       # 테스트
 ```
-
-## Docker
-
-```bash
-docker-compose up -d --build
-```
-
-`SPRING_PROFILES_ACTIVE=local` 환경변수로 프로필 선택

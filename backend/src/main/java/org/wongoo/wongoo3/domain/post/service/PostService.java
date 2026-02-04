@@ -9,11 +9,14 @@ import org.wongoo.wongoo3.domain.board.Board;
 import org.wongoo.wongoo3.domain.board.service.BoardService;
 import org.wongoo.wongoo3.domain.comment.repository.CommentRepository;
 import org.wongoo.wongoo3.domain.post.Post;
+import org.wongoo.wongoo3.domain.post.PostLike;
 import org.wongoo.wongoo3.domain.post.dto.CreatePostRequest;
+import org.wongoo.wongoo3.domain.post.dto.LikeResponse;
 import org.wongoo.wongoo3.domain.post.dto.PostListResponse;
 import org.wongoo.wongoo3.domain.post.dto.PostResponse;
 import org.wongoo.wongoo3.domain.post.dto.PostSearchRequest;
 import org.wongoo.wongoo3.domain.post.dto.UpdatePostRequest;
+import org.wongoo.wongoo3.domain.post.repository.PostLikeRepository;
 import org.wongoo.wongoo3.domain.post.repository.PostRepository;
 import org.wongoo.wongoo3.domain.user.User;
 import org.wongoo.wongoo3.domain.user.service.UserService;
@@ -25,6 +28,7 @@ import org.wongoo.wongoo3.global.exception.WebErrorException;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
     private final UserService userService;
     private final BoardService boardService;
     private final CommentRepository commentRepository;
@@ -81,6 +85,7 @@ public class PostService {
     public void deletePost(Long postId, Long userId) {
         Post post = getPostById(postId);
         validateAuthor(post, userId);
+        postLikeRepository.deleteAllByPostId(postId);
         commentRepository.deleteAllByPostId(postId);
         postRepository.delete(post);
     }
@@ -96,5 +101,39 @@ public class PostService {
             throw new WebErrorException(WebErrorCode.FORBIDDEN,
                     "게시글 작성자만 수정/삭제할 수 있습니다");
         }
+    }
+
+    @Transactional
+    public LikeResponse toggleLike(Long postId, Long userId) {
+        Post post = getPostById(postId);
+        User user = userService.getUserById(userId);
+
+        boolean exists = postLikeRepository.existsByPostIdAndUserId(postId, userId);
+
+        if (exists) {
+            postLikeRepository.deleteByPostIdAndUserId(postId, userId);
+        } else {
+            postLikeRepository.save(PostLike.create(post, user));
+        }
+
+        long likeCount = postLikeRepository.countByPostId(postId);
+        return new LikeResponse(likeCount, !exists);
+    }
+
+    @Transactional(readOnly = true)
+    public LikeResponse getLikeStatus(Long postId, Long userId) {
+        long likeCount = postLikeRepository.countByPostId(postId);
+        boolean isLiked = userId != null && postLikeRepository.existsByPostIdAndUserId(postId, userId);
+        return new LikeResponse(likeCount, isLiked);
+    }
+
+    @Transactional(readOnly = true)
+    public long getLikeCount(Long postId) {
+        return postLikeRepository.countByPostId(postId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isLikedByUser(Long postId, Long userId) {
+        return postLikeRepository.existsByPostIdAndUserId(postId, userId);
     }
 }

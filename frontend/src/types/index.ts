@@ -119,6 +119,12 @@ export interface Page<T> {
   empty: boolean;
 }
 
+// Like Types
+export interface LikeResponse {
+  likeCount: number;
+  isLiked: boolean;
+}
+
 // Stats Types
 export interface Stats {
   postCount: number;
