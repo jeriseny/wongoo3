@@ -1,11 +1,13 @@
 package org.wongoo.wongoo3.global.jwt.auth;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +20,7 @@ import org.wongoo.wongoo3.global.jwt.token.JwtParser;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -28,13 +31,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
 
-        if (token != null && jwtParser.validate(token)) {
-            Claims claims = jwtParser.parseToken(token);
-            LoginUser loginUser = jwtClaimsResolver.resolverLoginUser(claims);
-            SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ROLE_" + loginUser.role().name());
+        if (token != null) {
+            try {
+                // parseToken이 검증과 파싱을 함께 수행 (이중 검증 제거)
+                Claims claims = jwtParser.parseToken(token);
+                LoginUser loginUser = jwtClaimsResolver.resolverLoginUser(claims);
+                SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ROLE_" + loginUser.role().name());
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(loginUser, null, List.of(simpleGrantedAuthority));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(loginUser, null, List.of(simpleGrantedAuthority));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (JwtException | IllegalArgumentException e) {
+                log.debug("Invalid JWT token: {}", e.getMessage());
+            }
         }
 
         filterChain.doFilter(request, response);

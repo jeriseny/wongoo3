@@ -1,6 +1,8 @@
 package org.wongoo.wongoo3.domain.terms.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.wongoo.wongoo3.domain.terms.Terms;
@@ -20,6 +22,7 @@ public class TermsService {
     private final TermsHistoryService termsHistoryService;
     private final TermsRepository termsRepository;
 
+    @Cacheable(value = "terms", key = "'all'")
     @Transactional(readOnly = true)
     public List<Terms> getAllTerms() {
         return termsRepository.findAll();
@@ -29,6 +32,7 @@ public class TermsService {
      * 관리자 약관 등록/수정
      * @param requests 약관 등록/수정 요청 리스트
      */
+    @CacheEvict(value = "terms", allEntries = true)
     @Transactional
     public void addTerms(List<AddTermsRequest> requests) {
         List<Terms> termsList = termsRepository.findAll();

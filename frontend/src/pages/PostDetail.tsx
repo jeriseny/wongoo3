@@ -43,6 +43,11 @@ export default function PostDetail() {
     }
   }, [postId]);
 
+  // 댓글 수정/삭제 후 리로드 콜백 (메모이제이션으로 불필요한 리렌더 방지)
+  const handleCommentChange = useCallback(() => {
+    fetchComments(commentPage);
+  }, [fetchComments, commentPage]);
+
   useEffect(() => {
     setIsLoading(true);
     Promise.all([fetchPost(), fetchComments(0)]).finally(() => setIsLoading(false));
@@ -154,8 +159,8 @@ export default function PostDetail() {
                 <CommentItem
                   key={comment.id}
                   comment={comment}
-                  onUpdate={() => fetchComments(commentPage)}
-                  onDelete={() => fetchComments(commentPage)}
+                  onUpdate={handleCommentChange}
+                  onDelete={handleCommentChange}
                 />
               ))}
             </div>

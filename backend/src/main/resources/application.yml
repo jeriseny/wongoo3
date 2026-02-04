@@ -5,6 +5,11 @@ spring:
   profiles:
     active: local
 
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=600s
+
   jackson:
     time-zone: Asia/Seoul
 

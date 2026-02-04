@@ -14,7 +14,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
     @EntityGraph(attributePaths = {"author", "board"})
     Page<Post> findByBoardSlugOrderByCreatedAtDesc(String boardSlug, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"author", "board"})
     Page<Post> findByTitleContainingOrderByCreatedAtDesc(String keyword, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"author", "board"})
     Page<Post> findByAuthorIdOrderByCreatedAtDesc(Long authorId, Pageable pageable);
 }

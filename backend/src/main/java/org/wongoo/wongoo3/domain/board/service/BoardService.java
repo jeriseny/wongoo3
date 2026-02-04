@@ -1,6 +1,8 @@
 package org.wongoo.wongoo3.domain.board.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.wongoo.wongoo3.domain.board.Board;
@@ -18,6 +20,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
 
+    @Cacheable(value = "boards", key = "'active'")
     @Transactional(readOnly = true)
     public List<BoardResponse> getAllActiveBoards() {
         return boardRepository.findAllByIsActiveTrueOrderByDisplayOrderAsc()
@@ -26,12 +29,14 @@ public class BoardService {
             .toList();
     }
 
+    @Cacheable(value = "boards", key = "#slug")
     @Transactional(readOnly = true)
     public BoardResponse getBoardBySlug(String slug) {
         Board board = findBySlug(slug);
         return BoardResponse.from(board);
     }
 
+    @CacheEvict(value = "boards", allEntries = true)
     @Transactional
     public BoardResponse createBoard(CreateBoardRequest request) {
         if (boardRepository.existsBySlug(request.slug())) {

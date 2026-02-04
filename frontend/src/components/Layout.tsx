@@ -1,7 +1,23 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Header from './Header';
+import { useAuthStore } from '../stores/authStore';
 
 export default function Layout() {
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
+
+  // 인증 만료 이벤트 처리 (하드 리다이렉트 대신 React Router 사용)
+  useEffect(() => {
+    const handleAuthLogout = () => {
+      logout();
+      navigate('/login', { replace: true });
+    };
+
+    window.addEventListener('auth:logout', handleAuthLogout);
+    return () => window.removeEventListener('auth:logout', handleAuthLogout);
+  }, [navigate, logout]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

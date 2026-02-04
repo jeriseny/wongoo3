@@ -51,7 +51,8 @@ api.interceptors.response.use(
           return api(error.config);
         } catch {
           tokenManager.clearTokens();
-          window.location.href = '/login';
+          // React Router를 통한 리다이렉트를 위해 이벤트 발생
+          window.dispatchEvent(new CustomEvent('auth:logout'));
         }
       }
     }

@@ -19,35 +19,36 @@ export default function PostWrite() {
   const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
-    boardApi
-      .getList()
-      .then((res) => {
-        setBoards(res.data);
-        if (!boardSlug && res.data.length > 0) {
-          setBoardSlug(res.data[0].slug);
-        }
-      })
-      .finally(() => {
-        if (!isEdit) setIsFetching(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (isEdit && id) {
+    const fetchInitialData = async () => {
       setIsFetching(true);
-      postApi
-        .getDetail(Number(id))
-        .then((response) => {
-          setTitle(response.data.title);
-          setContent(response.data.content);
-          setBoardSlug(response.data.boardSlug);
-        })
-        .catch((err) => {
-          alert(getErrorMessage(err, '게시글을 찾을 수 없습니다.'));
-          navigate('/');
-        })
-        .finally(() => setIsFetching(false));
-    }
+      try {
+        if (isEdit && id) {
+          // 수정 모드: 게시판 목록 + 게시글 상세 병렬 로드
+          const [boardsRes, postRes] = await Promise.all([
+            boardApi.getList(),
+            postApi.getDetail(Number(id))
+          ]);
+          setBoards(boardsRes.data);
+          setTitle(postRes.data.title);
+          setContent(postRes.data.content);
+          setBoardSlug(postRes.data.boardSlug);
+        } else {
+          // 작성 모드: 게시판 목록만 로드
+          const boardsRes = await boardApi.getList();
+          setBoards(boardsRes.data);
+          if (!boardSlug && boardsRes.data.length > 0) {
+            setBoardSlug(boardsRes.data[0].slug);
+          }
+        }
+      } catch (err) {
+        alert(getErrorMessage(err, '데이터를 불러오는데 실패했습니다.'));
+        navigate('/');
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchInitialData();
   }, [id, isEdit, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
